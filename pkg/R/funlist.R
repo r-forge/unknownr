@@ -3,8 +3,6 @@ funlist = function() {
     # like to 'know'. Exclude all the as.*, just including
     # "as" once for example. Include non-methods that may
     # look like methods such as 'write.table'.
-
-    cat("Building function list ...");flush.console()    
     xx = sort(c(objects(pos="package:base"), objects(pos="package:utils")))
     xx = xx[-grep("[<][-]",xx)]
     xx = xx[-grep("[?]",xx)]
@@ -16,7 +14,9 @@ funlist = function() {
     nodots = xx[grep("^[^.]+$",xx)]
     nodots = nodots[!nodots %in% c("UseMethod","|","||")]
     # exclude the following realmethods, at least
-    realmethods = unlist(lapply(nodots, function(x) {
+    .i <<- 0
+    realmethods = unlist(lapply(nodots[1:50], function(x) {
+	.i <<- .i + 1
         thisfun = get(x)
         if (is.function(thisfun)) {
             dd = deparse(thisfun)
@@ -24,14 +24,16 @@ funlist = function() {
                 return(suppressWarnings(tryCatch(methods(x),error=function(e)NULL)))
             }
         }
+	cat("Building function list ... ",trunc(100*.i/length(nodots)),"%\r",sep="");flush.console()  
+	# A more correct but less user friendly message would be "Filtering methods from function list ..." 
         NULL
     }))
+    cat("\n");flush.console()
     if (length(grep("^[^.]*$",realmethods))) stop("some methods don't have any .")
     xx = xx[!xx %in% realmethods]
     excludes = c("^is[.].+", "^as[.].+", "^Summary[.].+", "^Math[.].+", "^Ops[.].+", "^qr[.].+", "^all.equal[.].+")
     for (e in excludes) xx = xx[-grep(e,xx)]
     xx = sort(c(xx,"?","<-","<<-","is","as"))
-    cat("done\n"); flush.console()
     xx
 }
 
