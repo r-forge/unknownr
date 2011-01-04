@@ -1,8 +1,9 @@
 funlist = function() {
     # list all functions in base and utils which we would
-    # like to 'know'. Exclude all the as.*, just including
-    # "as" once for example. Include non-methods that may
-    # look like methods such as 'write.table'.
+    # like to 'know'. Exclude the many as.* methods, just
+    # including "as" once for example. Include non-methods
+    # that may look like methods such as 'write.table'.
+
     xx = sort(c(objects(pos="package:base"), objects(pos="package:utils")))
     xx = xx[-grep("[<][-]",xx)]
     xx = xx[-grep("[?]",xx)]
@@ -13,9 +14,8 @@ funlist = function() {
     xx = xx[!defunct]
     nodots = xx[grep("^[^.]+$",xx)]
     nodots = nodots[!nodots %in% c("UseMethod","|","||")]
-    # exclude the following realmethods, at least
     .i <<- 0
-    realmethods = unlist(lapply(nodots[1:50], function(x) {
+    realmethods = unlist(lapply(nodots, function(x) {
 	.i <<- .i + 1
         thisfun = get(x)
         if (is.function(thisfun)) {
@@ -31,9 +31,16 @@ funlist = function() {
     cat("\n");flush.console()
     if (length(grep("^[^.]*$",realmethods))) stop("some methods don't have any .")
     xx = xx[!xx %in% realmethods]
-    excludes = c("^is[.].+", "^as[.].+", "^Summary[.].+", "^Math[.].+", "^Ops[.].+", "^qr[.].+", "^all.equal[.].+")
-    for (e in excludes) xx = xx[-grep(e,xx)]
-    xx = sort(c(xx,"?","<-","<<-","is","as"))
+    exclude = c("^as[.].+",
+                "^Summary[.].+",
+                "^Math[.].+",
+                "^Ops[.].+",
+                "^qr[.].+",
+                "^all.equal[.].+",
+                "^aspell[_].+",
+                "^[^a-zA-Z0-9%]")
+    for (e in exclude) xx = xx[-grep(e,xx)]
+    xx = sort(xx)
     xx
 }
 
