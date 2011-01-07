@@ -14,9 +14,9 @@ funlist = function() {
     xx = xx[!defunct]
     nodots = xx[grep("^[^.]+$",xx)]
     nodots = nodots[!nodots %in% c("UseMethod","|","||")]
-    .i <<- 0
+    i = 0
     realmethods = unlist(lapply(nodots, function(x) {
-	.i <<- .i + 1
+	i <<- i + 1
         thisfun = get(x)
         if (is.function(thisfun)) {
             dd = deparse(thisfun)
@@ -24,7 +24,7 @@ funlist = function() {
                 return(suppressWarnings(tryCatch(methods(x),error=function(e)NULL)))
             }
         }
-	cat("Building function list ... ",trunc(100*.i/length(nodots)),"%\r",sep="");flush.console()  
+	cat("Building function list ... ",trunc(100*i/length(nodots)),"%\r",sep="");flush.console()  
 	# A more correct but less user friendly message would be "Filtering methods from function list ..." 
         NULL
     }))
