@@ -25,7 +25,8 @@ unk(fnam)
 }
 \author{ Matthew Dowle }
 \examples{
-   \dontrun{unk()}
+   \dontrun{
+   unk()}
 }
 \keyword{ data }
 
