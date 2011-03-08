@@ -5,10 +5,11 @@
   Starts GUI interface for unknownR.
 }
 \usage{
-unk(fnam)
+unk(fnam,size=20)
 }
 \arguments{
   \item{fnam}{ Full path to data file containing your knowns. By default this is .knowns.Rdata in your home folder. }
+  \item{size}{ Font size. The function name itself is 2*size. }
 }
 \details{
   Fast and fun way to discover useful functions in R that you didn't know you didn't know. Cheatsheets, reference cards, tip of the day's, ticking off the index of reference manuals are other ways to discover unknown unknowns, but how do you know you haven't missed something, and how do you do it quickly?

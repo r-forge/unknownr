@@ -1,4 +1,4 @@
-unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata")) {
+unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata"),size=20) {
     .unk.i=.unk.lock=.unk.esc=.unk.i=.unk.dlg=.unk.bool=.unk.starting=.unk.qlabel=.unk.qtext=.unk.unknowns=.unk.funlist=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     require(tcltk)
@@ -18,15 +18,19 @@ unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata")) {
     .unk.unknowns <<- .unk.funlist[!.unk.funlist %in% knowns]
     .unk.knowns <<- knowns
 
-    large = tkfont.create(family="courier",size=40,weight="bold")
+    large = tkfont.create(family="courier",size=size*2,weight="bold")
+    other = tkfont.create(family="ariel",size=size,weight="bold")
     .unk.dlg <<- tktoplevel()
     tkwm.title(.unk.dlg,"unknownR")
-    tkgrid(tklabel(.unk.dlg,text="Do you know? :"),columnspan=4)
+     tkgrid(tklabel(.unk.dlg,text=""))
+    tkgrid(tklabel(.unk.dlg,text="Do you know? :",font=other),columnspan=4)
+    tkgrid(tklabel(.unk.dlg,text=""))
     
     .unk.qtext <<- tclVar("Press SPACE to start")
-    .unk.qlabel <<- tklabel(.unk.dlg,text=tclvalue(.unk.qtext),width=max(nchar(.unk.unknowns)),font=large)
+    .unk.qlabel <<- tklabel(.unk.dlg,text=tclvalue(.unk.qtext),width=max(nchar(.unk.unknowns)),font=large,relief="ridge",bd=10,bg="light yellow")
     tkconfigure(.unk.qlabel,textvariable=.unk.qtext)
     tkgrid(.unk.qlabel,columnspan=4)
+    tkgrid(tklabel(.unk.dlg,text=""))
     
     .unk.numall <<- tclVar(0)
     .unk.numkno <<- tclVar(0)
@@ -34,25 +38,20 @@ unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata")) {
     .unk.numleft <<- tclVar(0)    
     .unk.timeleft <<- tclVar("")
     
-    .unk.num1 <<- tklabel(.unk.dlg,text=tclvalue(.unk.numleft),width=10,anchor="e")
-    .unk.num2 <<- tklabel(.unk.dlg,text=tclvalue(.unk.numleft),width=10,anchor="e",fg="blue")
-    .unk.num3 <<- tklabel(.unk.dlg,text=tclvalue(.unk.numleft),width=10,anchor="e",fg="red")
-    .unk.num4 <<- tklabel(.unk.dlg,text=tclvalue(.unk.numleft),width=10,anchor="e")
-    .unk.num5 <<- tklabel(.unk.dlg,text=tclvalue(.unk.numleft),width=10,anchor="e")
-    tkconfigure(.unk.num1,textvariable=.unk.numall)
-    tkconfigure(.unk.num2,textvariable=.unk.numkno)
-    tkconfigure(.unk.num3,textvariable=.unk.numunk)
-    tkconfigure(.unk.num4,textvariable=.unk.numleft)
-    tkconfigure(.unk.num5,textvariable=.unk.timeleft)
-    .unk.numlabel1 <<- tklabel(.unk.dlg,text="All functions:")  #relief="groove"
-    .unk.numlabel2 <<- tklabel(.unk.dlg,text="Known:",fg="blue")
-    .unk.numlabel3 <<- tklabel(.unk.dlg,text="Unknown:",fg="red")
-    .unk.numlabel4 <<- tklabel(.unk.dlg,text="Remaining:")
-    .unk.numlabel5 <<- tklabel(.unk.dlg,text="Estimated time:")
+    .unk.num1 <<- tklabel(.unk.dlg,textvariable=.unk.numall,width=10,anchor="e",font=other)
+    .unk.num2 <<- tklabel(.unk.dlg,textvariable=.unk.numkno,width=10,anchor="e",fg="blue",font=other)
+    .unk.num3 <<- tklabel(.unk.dlg,textvariable=.unk.numunk,width=10,anchor="e",fg="red",font=other)
+    .unk.num4 <<- tklabel(.unk.dlg,textvariable=.unk.numleft,width=10,anchor="e",font=other)
+    .unk.num5 <<- tklabel(.unk.dlg,textvariable=.unk.timeleft,width=10,anchor="e",font=other)
+    .unk.numlabel1 <<- tklabel(.unk.dlg,text="All functions:",font=other)  #relief="groove"
+    .unk.numlabel2 <<- tklabel(.unk.dlg,text="Known:",fg="blue",font=other)
+    .unk.numlabel3 <<- tklabel(.unk.dlg,text="Unknown:",fg="red",font=other)
+    .unk.numlabel4 <<- tklabel(.unk.dlg,text="Remaining:",font=other)
+    .unk.numlabel5 <<- tklabel(.unk.dlg,text="Estimated time:",font=other)
     tkgrid(.unk.numlabel1,.unk.num1)
-    tkgrid(.unk.numlabel2,.unk.num2,label6<-tklabel(.unk.dlg,text="SPACE : ",fg="blue"),label7<-tklabel(.unk.dlg,text="I know it",fg="blue"))
-    tkgrid(.unk.numlabel3,.unk.num3,label8<-tklabel(.unk.dlg,text="ENTER : ",fg="red"),label9<-tklabel(.unk.dlg,text="I don't know it",fg="red"))
-    tkgrid(.unk.numlabel4,.unk.num4,label10<-tklabel(.unk.dlg,text="ESC : "),label11<-tklabel(.unk.dlg,text="Pause/Quit"))
+    tkgrid(.unk.numlabel2,.unk.num2,label6<-tklabel(.unk.dlg,text="SPACE : ",fg="blue",font=other),label7<-tklabel(.unk.dlg,text="I know it",fg="blue",font=other))
+    tkgrid(.unk.numlabel3,.unk.num3,label8<-tklabel(.unk.dlg,text="ENTER : ",fg="red",font=other),label9<-tklabel(.unk.dlg,text="I don't know it",fg="red",font=other))
+    tkgrid(.unk.numlabel4,.unk.num4,label10<-tklabel(.unk.dlg,text="ESC : ",font=other),label11<-tklabel(.unk.dlg,text="Pause/Quit",font=other))
     tkgrid(.unk.numlabel5,.unk.num5)
     tkgrid.configure(.unk.numlabel1,.unk.numlabel2,.unk.numlabel3,.unk.numlabel4,.unk.numlabel5,label6,label8,label10,sticky="e")
     tkgrid.configure(.unk.num1,.unk.num2,.unk.num3,.unk.num4,.unk.num5,label7,label9,label11,sticky="w")
@@ -60,6 +59,7 @@ unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata")) {
     tkgrid.columnconfigure(.unk.dlg,1,weight=5)
     tkgrid.columnconfigure(.unk.dlg,2,weight=1)
     tkgrid.columnconfigure(.unk.dlg,3,weight=5)
+    tkgrid(tklabel(.unk.dlg,text=""))
     
     .unk.i <<- 0
     .unk.lock <<- FALSE
@@ -106,7 +106,6 @@ Know = function() {
     if (!.unk.starting) {
         .unk.lock <<- TRUE
         .unk.bool[.unk.i] <<- TRUE
-        cat("I know",.unk.i,"\n")
         tkconfigure(.unk.qlabel,fg="blue")
         updatestatus()
         tcl("after",500,Next)
@@ -120,7 +119,6 @@ Know = function() {
 DontKnow = function(thisi=get(".unk.i",.GlobalEnv)) {
 # runs 2s after red regardless of space being pressed, but if space was pressed i would have incremented and thisi<i
     if (thisi==get(".unk.i",.GlobalEnv) && !get(".unk.lock",.GlobalEnv) && !get(".unk.esc",.GlobalEnv)) {
-        cat("Don't know",thisi,"\n")
         updatestatus()
         Next()
     }
@@ -152,10 +150,10 @@ Next = function() {
     } else {
         tclvalue(.unk.qtext) = .unk.unknowns[.unk.i]
         xx = parse(text=paste("function()Red(",.unk.i,")"))
-        tcl("after",2000,xx)
+        tcl("after",3000,xx)
         .unk.lock <<- TRUE
         tcl("after",250,Unlock)
-        # prevents presses intended for the very end of red which are a little too late counting as a know for the next one. Unexpected that user will see function, recognise, know it and press space all within 250ms. Also prevents holding down space.
+        # lock prevents presses intended for the very end of red which are a little too late counting as a know for the next one. Unexpected that user will see function, recognise, know it and press space all within 250ms. Also prevents holding down space.
     }
 }
 
