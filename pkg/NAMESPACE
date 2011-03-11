@@ -1,3 +1,4 @@
 export(unk)
+export(learn)
 export(Red,Know,DontKnow,Unlock,Next,Esc,Skip)
 

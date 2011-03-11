@@ -29,23 +29,26 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <a href="/"><img src="<?php echo $themeroot; ?>/images/logo.png" border="0" alt="R-Forge Logo" /> </a> </td> </tr>
 </table>
 
-
-<!-- get project title  -->
-<!-- own website starts here, the following may be changed as you like -->
-
-<?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
-$contents = '';
-while (!feof($handle)) {
-	$contents .= fread($handle, 8192);
-}
-fclose($handle);
-echo $contents; } ?>
-
-<!-- end of project description -->
-
-<p> No content added. </p>
+<h2>Welcome to the unknownR project!</h2> 
+<p>Do you know how many functions there are in base R?<br>
+How many of them do you know you don't know?<br>
+Run unk() to discover your unknown unknowns.<br>
+It's fast and it's fun !</p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
-
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=6700858; 
+var sc_invisible=1; 
+var sc_security="3e5c47ee"; 
+</script>
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script>
+<noscript><div class="statcounter"><a title="website
+statistics" href="http://statcounter.com/free-web-stats/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/6700858/0/3e5c47ee/1/"
+alt="website statistics"></a></div></noscript>
+<!-- End of StatCounter Code -->
 </body>
 </html>

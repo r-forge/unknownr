@@ -1,6 +1,6 @@
 Package: unknownR
 Version: 0.1
-Title: Which functions didn't you know you didn't know?
+Title: You didn't know you didn't know?
 Author: Matthew Dowle
 Maintainer: Matthew Dowle <mdowle@mdowle.plus.com>
 Depends: tcltk

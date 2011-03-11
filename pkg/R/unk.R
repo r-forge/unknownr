@@ -1,5 +1,7 @@
-unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata"),size=20) {
+unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     .unk.i=.unk.lock=.unk.esc=.unk.i=.unk.dlg=.unk.bool=.unk.starting=.unk.qlabel=.unk.qtext=.unk.unknowns=.unk.funlist=NULL
+    .unk.knowns=.unk.numall=.unk.numkno=.unk.numunk=.unk.numleft=.unk.timeleft=.unk.num1=.unk.num2=.unk.num3=.unk.num4=.unk.num5=NULL
+    .unk.numlabel1=.unk.numlabel2=.unk.numlabel3=.unk.numlabel4=.unk.numlabel5=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     require(tcltk)
     if (file.exists(fnam)) {
@@ -80,12 +82,15 @@ unk = function(fnam = file.path(path.expand("~"),".knowns.Rdata"),size=20) {
     cat("Added",sum(.unk.bool),"knowns to the",length(knowns),"in",fnam,"\n")
     knowns = sort(c(knowns,.unk.unknowns[.unk.bool]))
     save(list="knowns",file=fnam)
-    tolearn <<- .unk.unknowns[!.unk.bool]
+    tolearn = .unk.unknowns[!.unk.bool]
+    assign("tolearn",tolearn,envir=.GlobalEnv)
     cat("Type 'tolearn' to see the",length(tolearn),"unknowns. Run unk() again when you know them.\n")
     invisible()
 }
 
 updatestatus = function() {
+    .unk.numall=.unk.funlist=.unk.numkno=.unk.knowns=.unk.bool=.unk.numunk=.unk.i=.unk.unknowns=.unk.numleft=.unk.timeleft=NULL
+    rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     tclvalue(.unk.numall) <<- length(.unk.funlist)
     tclvalue(.unk.numkno) <<- length(.unk.knowns)+sum(.unk.bool)
     tclvalue(.unk.numunk) <<- sum(!head(.unk.bool,.unk.i))

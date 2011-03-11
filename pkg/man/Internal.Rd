@@ -13,7 +13,7 @@
 \details{
   Not for use by users. Without them exported, the tcltk 'after' function doesn't find them.
 }
-\author{ Matthew Dowle }
+
 
 
 
