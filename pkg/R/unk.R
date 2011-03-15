@@ -54,9 +54,10 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     tkgrid(.unk.numlabel2,.unk.num2,label6<-tklabel(.unk.dlg,text="SPACE : ",fg="blue",font=other),label7<-tklabel(.unk.dlg,text="I know it",fg="blue",font=other))
     tkgrid(.unk.numlabel3,.unk.num3,label8<-tklabel(.unk.dlg,text="ENTER : ",fg="red",font=other),label9<-tklabel(.unk.dlg,text="I don't know it",fg="red",font=other))
     tkgrid(.unk.numlabel4,.unk.num4,label10<-tklabel(.unk.dlg,text="ESC : ",font=other),label11<-tklabel(.unk.dlg,text="Pause/Quit",font=other))
-    tkgrid(.unk.numlabel5,.unk.num5)
-    tkgrid.configure(.unk.numlabel1,.unk.numlabel2,.unk.numlabel3,.unk.numlabel4,.unk.numlabel5,label6,label8,label10,sticky="e")
-    tkgrid.configure(.unk.num1,.unk.num2,.unk.num3,.unk.num4,.unk.num5,label7,label9,label11,sticky="w")
+    .unk.backbutton <<- tkbutton(.unk.dlg,text="Back",command=PressedBack,font=other,bd=2,state="disabled")
+    tkgrid(.unk.numlabel5,.unk.num5,.unk.backbutton,label12<-tklabel(.unk.dlg,text="Undo last answer",font=other))
+    tkgrid.configure(.unk.numlabel1,.unk.numlabel2,.unk.numlabel3,.unk.numlabel4,.unk.numlabel5,label6,label8,label10,.unk.backbutton,sticky="e")
+    tkgrid.configure(.unk.num1,.unk.num2,.unk.num3,.unk.num4,.unk.num5,label7,label9,label11,label12,sticky="w")
     tkgrid.columnconfigure(.unk.dlg,0,weight=1)
     tkgrid.columnconfigure(.unk.dlg,1,weight=5)
     tkgrid.columnconfigure(.unk.dlg,2,weight=1)
@@ -92,7 +93,7 @@ updatestatus = function() {
     .unk.numall=.unk.funlist=.unk.numkno=.unk.knowns=.unk.bool=.unk.numunk=.unk.i=.unk.unknowns=.unk.numleft=.unk.timeleft=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     tclvalue(.unk.numall) <<- length(.unk.funlist)
-    tclvalue(.unk.numkno) <<- length(.unk.knowns)+sum(.unk.bool)
+    tclvalue(.unk.numkno) <<- length(.unk.knowns)+sum(head(.unk.bool,.unk.i))
     tclvalue(.unk.numunk) <<- sum(!head(.unk.bool,.unk.i))
     n = length(.unk.unknowns) - .unk.i
     tclvalue(.unk.numleft) <<- n
@@ -102,6 +103,12 @@ updatestatus = function() {
     s = s%%60
     tclvalue(.unk.timeleft) <<- sprintf("%02d:%02d:%02d",h,m,s)
     invisible()
+}
+
+PressedBack = function() {
+   if (.unk.i>0) .unk.i<<-.unk.i-1
+   updatestatus()
+   if (.unk.i==0) tkconfigure(.unk.backbutton,state="disabled")
 }
 
 Know = function() {
@@ -159,6 +166,7 @@ Next = function() {
         .unk.lock <<- TRUE
         tcl("after",250,Unlock)
         # lock prevents presses intended for the very end of red which are a little too late counting as a know for the next one. Unexpected that user will see function, recognise, know it and press space all within 250ms. Also prevents holding down space.
+        tkconfigure(.unk.backbutton,state="disabled")
     }
 }
 
@@ -174,6 +182,7 @@ Esc = function() {
         .unk.i <<- .unk.i-1
         .unk.starting <<- TRUE
         tclvalue(.unk.qtext) = "Press SPACE to resume"
+        if(.unk.i>0) tkconfigure(.unk.backbutton,state="active")
     }
 }
 
