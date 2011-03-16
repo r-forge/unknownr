@@ -86,7 +86,7 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     tkdestroy(.unk.dlg)
     tolearn = .unk.unknowns[!.unk.bool]
     assign("tolearn",tolearn,envir=.GlobalEnv)
-    cat("Type 'tolearn' to see the",length(tolearn),"unknowns. Run unk() again when you know them.\n")
+    cat("Now type learn() to view help for your",length(tolearn),"unknowns. Run unk() again when you know them.\n")
     invisible()
 }
 
@@ -163,6 +163,7 @@ Unlock = function() {
 Next = function() {
     .unk.i=.unk.starting=.unk.qlabel=.unk.unknowns=.unk.lock=.unk.qtext=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
+    if (.unk.esc) return()  # a very quick ESC following SPACE
     .unk.i <<- .unk.i+1
     .unk.starting <<- FALSE
     tkconfigure(.unk.qlabel,fg="black")
@@ -195,7 +196,7 @@ Esc = function() {
         tkconfigure(.unk.qlabel,fg="black")
         .unk.lock <<- FALSE
         .unk.esc <<- TRUE
-        .unk.i <<- .unk.i-1
+        if (!.unk.bool[.unk.i]) .unk.i <<- .unk.i-1  # Quick ESC following SPACE should not forget the known
         .unk.starting <<- TRUE
         tclvalue(.unk.qtext) = "Press SPACE to resume"
         if(.unk.i>0) tkconfigure(.unk.backbutton,state="active")
