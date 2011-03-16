@@ -19,6 +19,7 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     }
     .unk.unknowns <<- .unk.funlist[!.unk.funlist %in% knowns]
     .unk.knowns <<- knowns
+    .unk.fnam <<- fnam
 
     large = tkfont.create(family="courier",size=size*2,weight="bold")
     other = tkfont.create(family="ariel",size=size,weight="bold")
@@ -79,21 +80,27 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     tkfocus(.unk.dlg)
     updatestatus()
     tkwait.window(.unk.dlg)
+    if (.unk.i>0 && tclvalue(tkmessageBox(message=paste("Save your ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to disk?",sep=""),type="yesno"))=="yes") {
+        saveanswers()
+    }
     tkdestroy(.unk.dlg)
-    cat("Added",sum(.unk.bool),"knowns to the",length(knowns),"in",fnam,"\n")
-    knowns = sort(c(knowns,.unk.unknowns[.unk.bool]))
-    save(list="knowns",file=fnam)
     tolearn = .unk.unknowns[!.unk.bool]
     assign("tolearn",tolearn,envir=.GlobalEnv)
     cat("Type 'tolearn' to see the",length(tolearn),"unknowns. Run unk() again when you know them.\n")
     invisible()
 }
 
+saveanswers=function() {
+    cat("Added",sum(.unk.bool),"knowns to the",length(.unk.knowns),"in",.unk.fnam,"\n")
+    knowns = sort(c(.unk.knowns,.unk.unknowns[.unk.bool]))
+    save(list="knowns",file=.unk.fnam)
+}
+
 updatestatus = function() {
     .unk.numall=.unk.funlist=.unk.numkno=.unk.knowns=.unk.bool=.unk.numunk=.unk.i=.unk.unknowns=.unk.numleft=.unk.timeleft=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     tclvalue(.unk.numall) <<- length(.unk.funlist)
-    tclvalue(.unk.numkno) <<- length(.unk.knowns)+sum(head(.unk.bool,.unk.i))
+    tclvalue(.unk.numkno) <<- length(.unk.knowns)+sum(.unk.bool)
     tclvalue(.unk.numunk) <<- sum(!head(.unk.bool,.unk.i))
     n = length(.unk.unknowns) - .unk.i
     tclvalue(.unk.numleft) <<- n
@@ -106,7 +113,10 @@ updatestatus = function() {
 }
 
 PressedBack = function() {
-   if (.unk.i>0) .unk.i<<-.unk.i-1
+   if (.unk.i>0) {
+       .unk.bool[.unk.i]=FALSE
+       .unk.i<<-.unk.i-1
+   }
    updatestatus()
    if (.unk.i==0) tkconfigure(.unk.backbutton,state="disabled")
 }
@@ -174,6 +184,12 @@ Esc = function() {
     .unk.esc=.unk.dlg=.unk.qlabel=.unk.lock=.unk.i=.unk.starting=.unk.qtext=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     if (.unk.esc) {
+        if (.unk.i>0) {
+            ans = tclvalue(tkmessageBox(message=paste("Save your ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to disk?",sep=""),type="yesnocancel"))
+            if (ans=="cancel") return()
+            if (ans=="yes") saveanswers()
+            .unk.i <<- 0  # to not ask again on destroy (see end of unk())
+        }
         tkdestroy(.unk.dlg)
     } else {
         tkconfigure(.unk.qlabel,fg="black")
