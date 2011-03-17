@@ -6,26 +6,33 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     require(tcltk)
     if (file.exists(fnam)) {
         tt = load(fnam)
-        if (!identical(tt,"knowns")) stop(fnam,"must contain a single character vector 'knowns'")
-	cat("Read",length(knowns),"from",fnam,"\n")
+        if (!identical(tt,"knowns")) stop(fnam,"must contain a single object named 'knowns'")
+        if (!is.logical(knowns)) stop("knowns object in",fnam,"must be a logical vector")
+        if (is.null(names(knowns)) || any(duplicated(names(knowns)))) stop("Either knowns in",fnam,"has no names, or there is a duplicate in the names")
+	    cat("Read ",length(knowns)," known/unknown response",if(length(knowns)>1)"s"," from ",fnam," ok\n",sep="")
     } else {
-	cat("First time running unk(). File",fnam,"does not exist\n")
-	knowns=NULL
+	    cat("First time running unk(). File",fnam,"does not exist\n")
+	    knowns=NULL
     }
     if (!exists(".unk.funlist",.GlobalEnv)) {
         .unk.funlist <<- funlist()
     } else {
         # the funlist won't have changed in this R session. Restart R (or rm(.unk.unknowns)) to build the list again.
     }
-    .unk.unknowns <<- .unk.funlist[!.unk.funlist %in% knowns]
+    .unk.unknowns <<- .unk.funlist[!.unk.funlist %in% names(knowns)]
+    if (!length(.unk.unknowns)) {
+        cat("There are no unknown unknowns!\n")
+        return()
+    }
     .unk.knowns <<- knowns
     .unk.fnam <<- fnam
 
     large = tkfont.create(family="courier",size=size*2,weight="bold")
     other = tkfont.create(family="ariel",size=size,weight="bold")
+    tclServiceMode(FALSE)
     .unk.dlg <<- tktoplevel()
     tkwm.title(.unk.dlg,"unknownR")
-     tkgrid(tklabel(.unk.dlg,text=""))
+    tkgrid(tklabel(.unk.dlg,text=""))
     tkgrid(tklabel(.unk.dlg,text="Do you know? :",font=other),columnspan=4)
     tkgrid(tklabel(.unk.dlg,text=""))
     
@@ -54,7 +61,7 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     tkgrid(.unk.numlabel1,.unk.num1)
     tkgrid(.unk.numlabel2,.unk.num2,label6<-tklabel(.unk.dlg,text="SPACE : ",fg="blue",font=other),label7<-tklabel(.unk.dlg,text="I know it",fg="blue",font=other))
     tkgrid(.unk.numlabel3,.unk.num3,label8<-tklabel(.unk.dlg,text="ENTER : ",fg="red",font=other),label9<-tklabel(.unk.dlg,text="I don't know it",fg="red",font=other))
-    tkgrid(.unk.numlabel4,.unk.num4,label10<-tklabel(.unk.dlg,text="ESC : ",font=other),label11<-tklabel(.unk.dlg,text="Pause/Quit",font=other))
+    tkgrid(.unk.numlabel4,.unk.num4,label10<-tklabel(.unk.dlg,text="ESC : ",font=other),label11<-tklabel(.unk.dlg,text="Pause/Save/Quit",font=other))
     .unk.backbutton <<- tkbutton(.unk.dlg,text="Back",command=PressedBack,font=other,bd=2,state="disabled")
     tkgrid(.unk.numlabel5,.unk.num5,.unk.backbutton,label12<-tklabel(.unk.dlg,text="Undo last answer",font=other))
     tkgrid.configure(.unk.numlabel1,.unk.numlabel2,.unk.numlabel3,.unk.numlabel4,.unk.numlabel5,label6,label8,label10,.unk.backbutton,sticky="e")
@@ -67,7 +74,7 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     
     .unk.i <<- 0
     .unk.lock <<- FALSE
-    .unk.esc <<- FALSE
+    .unk.esc <<- TRUE
     .unk.unknowns <<- sample(.unk.unknowns)
     .unk.bool <<- rep(FALSE,length(.unk.unknowns))
     .unk.starting <<- TRUE
@@ -77,22 +84,25 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     tkbind(.unk.dlg,"<space>", Know)
     tkbind(.unk.dlg,"<Return>", Skip)  # anticipate most people will go space or q to get through it quickly
     tkbind(.unk.dlg,"<Escape>", Esc)
+    tclServiceMode(TRUE)
     tkfocus(.unk.dlg)
     updatestatus()
     tkwait.window(.unk.dlg)
     if (.unk.i>0 && tclvalue(tkmessageBox(message=paste("Save your ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to disk?",sep=""),type="yesno"))=="yes") {
         saveanswers()
+        tolearn = names(.unk.knowns)[!.unk.knowns]
+        assign("tolearn",tolearn,envir=.GlobalEnv)
+        cat("Now type learn() to view help for your",length(tolearn),"known unknowns. Run unk() again when you know them.\n")
     }
     tkdestroy(.unk.dlg)
-    tolearn = .unk.unknowns[!.unk.bool]
-    assign("tolearn",tolearn,envir=.GlobalEnv)
-    cat("Now type learn() to view help for your",length(tolearn),"unknowns. Run unk() again when you know them.\n")
     invisible()
 }
 
 saveanswers=function() {
-    cat("Added",sum(.unk.bool),"knowns to the",length(.unk.knowns),"in",.unk.fnam,"\n")
-    knowns = sort(c(.unk.knowns,.unk.unknowns[.unk.bool]))
+    cat("Added ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to the ",length(.unk.knowns)," in ",.unk.fnam,"\n",sep="")
+    knowns = .unk.knowns
+    knowns[head(.unk.unknowns,.unk.i)] = head(.unk.bool,.unk.i)
+    knowns = knowns[order(names(knowns))]  # sort(c(.unk.knowns,.unk.unknowns[.unk.bool]))
     save(list="knowns",file=.unk.fnam)
 }
 
@@ -100,8 +110,8 @@ updatestatus = function() {
     .unk.numall=.unk.funlist=.unk.numkno=.unk.knowns=.unk.bool=.unk.numunk=.unk.i=.unk.unknowns=.unk.numleft=.unk.timeleft=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     tclvalue(.unk.numall) <<- length(.unk.funlist)
-    tclvalue(.unk.numkno) <<- length(.unk.knowns)+sum(.unk.bool)
-    tclvalue(.unk.numunk) <<- sum(!head(.unk.bool,.unk.i))
+    tclvalue(.unk.numkno) <<- sum(.unk.knowns)+sum(.unk.bool)
+    tclvalue(.unk.numunk) <<- sum(!.unk.knowns)+sum(!head(.unk.bool,.unk.i))
     n = length(.unk.unknowns) - .unk.i
     tclvalue(.unk.numleft) <<- n
     s = n*3  # assume 3 sec per function (most users will go much faster and beat estimate)
