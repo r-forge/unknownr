@@ -9,20 +9,32 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
         if (!identical(tt,"knowns")) stop(fnam,"must contain a single object named 'knowns'")
         if (!is.logical(knowns)) stop("knowns object in",fnam,"must be a logical vector")
         if (is.null(names(knowns)) || any(duplicated(names(knowns)))) stop("Either knowns in",fnam,"has no names, or there is a duplicate in the names")
-	    cat("Read ",length(knowns)," known/unknown response",if(length(knowns)>1)"s"," from ",fnam," ok\n",sep="")
+	    # cat("Read ",length(knowns)," known/unknown response",if(length(knowns)>1)"s"," from ",fnam," ok\n",sep="")
+	    .unk.savedknowns <<- knowns
     } else {
 	    cat("First time running unk(). File",fnam,"does not exist\n")
 	    knowns=NULL
+	    .unk.savedknowns <<- NULL
     }
     if (!exists(".unk.funlist",.GlobalEnv)) {
-        .unk.funlist <<- funlist()
+        .unk.funlist <<- head(funlist(),10)  #tmp for testing, but box gets smaller!
     } else {
         # the funlist won't have changed in this R session. Restart R (or rm(.unk.unknowns)) to build the list again.
     }
     .unk.unknowns <<- .unk.funlist[!.unk.funlist %in% names(knowns)]
+    knowns = knowns[names(knowns) %in% .unk.funlist]  # e.g. if swapping between packages, or a function in deprecated in base in future
     if (!length(.unk.unknowns)) {
-        cat("There are no unknown unknowns!\n")
-        return()
+        # All unknown unknowns have been moved to known knowns or known unknowns.
+        .unk.unknowns <<- names(knowns)[!knowns]
+        if (!length(.unk.unknowns)) {
+            cat("Nothing to learn! You know all",length(.unk.funlist),"functions.\n")
+            return()
+        }
+        title = "Do you (now) know? :"
+        .unk.nowknowmode <<- TRUE
+    } else {
+        title = "Do you know? :"
+        .unk.nowknowmode <<- FALSE
     }
     .unk.knowns <<- knowns
     .unk.fnam <<- fnam
@@ -33,11 +45,11 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     .unk.dlg <<- tktoplevel()
     tkwm.title(.unk.dlg,"unknownR")
     tkgrid(tklabel(.unk.dlg,text=""))
-    tkgrid(tklabel(.unk.dlg,text="Do you know? :",font=other),columnspan=4)
+    tkgrid(tklabel(.unk.dlg,text=title,font=other),columnspan=4)
     tkgrid(tklabel(.unk.dlg,text=""))
     
     .unk.qtext <<- tclVar("Press SPACE to start")
-    .unk.qlabel <<- tklabel(.unk.dlg,text=tclvalue(.unk.qtext),width=max(nchar(.unk.unknowns)),font=large,relief="ridge",bd=10,bg="light yellow")
+    .unk.qlabel <<- tklabel(.unk.dlg,text=tclvalue(.unk.qtext),width=max(30,max(nchar(.unk.funlist))),font=large,relief="ridge",bd=10,bg="light yellow")
     tkconfigure(.unk.qlabel,textvariable=.unk.qtext)
     tkgrid(.unk.qlabel,columnspan=4)
     tkgrid(tklabel(.unk.dlg,text=""))
@@ -90,20 +102,31 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
     tkwait.window(.unk.dlg)
     if (.unk.i>0 && tclvalue(tkmessageBox(message=paste("Save your ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to disk?",sep=""),type="yesno"))=="yes") {
         saveanswers()
+    }
+    if (length(.unk.knowns) == length(.unk.funlist)) {
         tolearn = names(.unk.knowns)[!.unk.knowns]
-        assign("tolearn",tolearn,envir=.GlobalEnv)
-        cat("Now type learn() to view help for your",length(tolearn),"known unknowns. Run unk() again when you know them.\n")
+        if (length(tolearn)) {
+            assign("tolearn",tolearn,envir=.GlobalEnv)
+            cat("Now type learn() to view help for your",length(tolearn),"known unknowns. Run unk() again when you know them.\n")
+        } else {
+            cat("Congratulations! You have no known unknown functions left to learn.\nWe hope this package helped you discover something you didn't know you didn't know.\n")
+        }
+    } else {
+        n = length(.unk.funlist)-length(.unk.knowns)
+        cat("You have ",n," (",trunc(100*n/length(.unk.funlist)),"% of ",length(.unk.funlist),") unknown unknowns remaining.\nRun unk() any time to continue where you left off.\n",sep="")
     }
     tkdestroy(.unk.dlg)
     invisible()
 }
 
 saveanswers=function() {
-    cat("Added ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to the ",length(.unk.knowns)," in ",.unk.fnam,"\n",sep="")
-    knowns = .unk.knowns
+    knowns = .unk.savedknowns
     knowns[head(.unk.unknowns,.unk.i)] = head(.unk.bool,.unk.i)
-    knowns = knowns[order(names(knowns))]  # sort(c(.unk.knowns,.unk.unknowns[.unk.bool]))
+    knowns = knowns[order(names(knowns))]
+    .unk.savedknowns <<- knowns
     save(list="knowns",file=.unk.fnam)
+    cat("Saved ",.unk.i," known/unknown response",if(.unk.i>1)"s"else""," to the ",length(.unk.savedknowns)," in ",.unk.fnam,"\n",sep="")
+    .unk.knowns <<- knowns[names(knowns) %in% .unk.funlist]
 }
 
 updatestatus = function() {
@@ -111,7 +134,11 @@ updatestatus = function() {
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     tclvalue(.unk.numall) <<- length(.unk.funlist)
     tclvalue(.unk.numkno) <<- sum(.unk.knowns)+sum(.unk.bool)
-    tclvalue(.unk.numunk) <<- sum(!.unk.knowns)+sum(!head(.unk.bool,.unk.i))
+    if (.unk.nowknowmode) {
+        tclvalue(.unk.numunk) <<- sum(!.unk.knowns)-sum(.unk.bool)
+    } else {
+        tclvalue(.unk.numunk) <<- sum(!.unk.knowns)+sum(!head(.unk.bool,.unk.i))
+    }
     n = length(.unk.unknowns) - .unk.i
     tclvalue(.unk.numleft) <<- n
     s = n*3  # assume 3 sec per function (most users will go much faster and beat estimate)
@@ -124,8 +151,10 @@ updatestatus = function() {
 
 PressedBack = function() {
    if (.unk.i>0) {
-       .unk.bool[.unk.i]=FALSE
+       .unk.bool[.unk.i]<<-FALSE
        .unk.i<<-.unk.i-1
+       tclvalue(.unk.qtext) = "Press SPACE to resume"
+       # in case user had finished (changing text) then pressed back
    }
    updatestatus()
    if (.unk.i==0) tkconfigure(.unk.backbutton,state="disabled")
@@ -174,16 +203,24 @@ Next = function() {
     .unk.i=.unk.starting=.unk.qlabel=.unk.unknowns=.unk.lock=.unk.qtext=NULL
     rm(list=objects(pattern="^[.]unk[.]",all=TRUE))
     if (.unk.esc) return()  # a very quick ESC following SPACE
-    .unk.i <<- .unk.i+1
-    .unk.starting <<- FALSE
-    tkconfigure(.unk.qlabel,fg="black")
-    .unk.lock <<- FALSE 
-    if (.unk.i > length(.unk.unknowns)) {
+    tkconfigure(.unk.qlabel,fg="black") 
+    if (.unk.i == length(.unk.unknowns)) {
         # finished
+        .unk.lock <<- FALSE
+        .unk.esc <<- TRUE
+        .unk.starting <<- TRUE
+        if (.unk.nowknowmode && all(.unk.bool)) {
+            tclvalue(.unk.qtext) = "Congrats! All stones turned."
+        } else {
+            tclvalue(.unk.qtext) = "Quit & save, then run learn()"
+        }
+        if(.unk.i>0) tkconfigure(.unk.backbutton,state="active")
     } else {
+        .unk.i <<- .unk.i+1
         tclvalue(.unk.qtext) = .unk.unknowns[.unk.i]
         xx = parse(text=paste("function()Red(",.unk.i,")"))
         tcl("after",3000,xx)
+        .unk.starting <<- FALSE
         .unk.lock <<- TRUE
         tcl("after",250,Unlock)
         # lock prevents presses intended for the very end of red which are a little too late counting as a know for the next one. Unexpected that user will see function, recognise, know it and press space all within 250ms. Also prevents holding down space.

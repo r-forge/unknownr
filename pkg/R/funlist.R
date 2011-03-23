@@ -3,7 +3,7 @@ funlist = function() {
     # like to 'know'. Exclude the many as.* methods, just
     # including "as" once for example. Include non-methods
     # that may look like methods such as 'write.table'.
-
+    require(tcltk)
     xx = sort(c(objects(pos="package:base"), objects(pos="package:utils")))
     xx = xx[-grep("[<][-]",xx)]
     xx = xx[-grep("[?]",xx)]
@@ -15,19 +15,22 @@ funlist = function() {
     nodots = xx[grep("^[^.]+$",xx)]
     nodots = nodots[!nodots %in% c("UseMethod","|","||")]
     i = 0
+    tclServiceMode(FALSE)
+    pb = tkProgressBar("unknownR", "Filtering function list ...", 0, length(nodots))
+    tclServiceMode(TRUE)
     realmethods = unlist(lapply(nodots, function(x) {
-	i <<- i + 1
+	    i <<- i + 1
         thisfun = get(x)
         if (is.function(thisfun)) {
             dd = deparse(thisfun)
             if (is.primitive(thisfun) || length(grep("UseMethod",dd))) {
                 return(suppressWarnings(tryCatch(methods(x),error=function(e)NULL)))
             }
-        }
-	cat("Building function list ... ",trunc(100*i/length(nodots)),"%\r",sep="");flush.console()  
-	# A more correct but less user friendly message would be "Filtering methods from function list ..." 
+        } 
+	    setTkProgressBar(pb,i)  
         NULL
     }))
+    close(pb)
     cat("\n");flush.console()
     if (length(grep("^[^.]*$",realmethods))) stop("some methods don't have any .")
     xx = xx[!xx %in% realmethods]
