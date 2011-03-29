@@ -5,11 +5,13 @@
   Starts GUI interface for unknownR.
 }
 \usage{
-unk(fnam=path.expand("~/.knowns.Rdata"),size=20)
+unk(fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
 }
 \arguments{
   \item{fnam}{ Full path to data file containing your knowns. By default this is .knowns.Rdata in your home folder. }
   \item{size}{ Font size. The main label displays the function name at \code{2*size}. }
+  \item{delay}{ How long each function is displayed before being turned red, by default 3 seconds. }
+  \item{redDelay}{ How long a function is red before 'Don't know' is assumed, by default 2 seconds. }
 }
 \details{
   Fast and fun way to discover useful functions in \R that you didn't know you didn't know. Cheat sheets, reference cards, tip of the days, ticking off the index of reference manuals are other good ways to discover unknown unknowns, but how do you know you haven't missed something, and how do you keep up to date?

@@ -12,7 +12,10 @@ This NEWS file summarises the main changes.
         
 NEW FEATURES
 
-    o
+    o   unk gains delay and redDelay arguments: the number of
+        seconds each function is displayed (3) and then turned
+        red (2).
+        
 
 BUG FIXES
 
@@ -20,7 +23,7 @@ BUG FIXES
 
         ********************************************
         **                                        **
-        **   VERSION 0.1 RELEASED CRAN MMM YYYY   **
+        **   VERSION 0.1 RELEASED CRAN MAR 2011   **
         **                                        **
         ********************************************
 

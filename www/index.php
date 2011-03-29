@@ -1,7 +1,3 @@
-
-<!-- This is the project specific website template -->
-<!-- It can be changed as liked or replaced by other content -->
-
 <?php
 
 $domain=ereg_replace('[^\.]*\.(.*)$','\1',$_SERVER['HTTP_HOST']);
@@ -33,9 +29,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <p>Do you know how many functions there are in base R?<br>
 How many of them do you know you don't know?<br>
 Run unk() to discover your unknown unknowns.<br>
-It's fast and it's fun !</p>
+It's fast and it's fun!</p>
 
-<p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<p>The package was presented at LondonR March 2011 <a href="http://www.londonr.org/unknownR.pdf"<strong>here</strong></a>. This presentation serves as a quick introduction. It is strongly recommended to read this before running unk() for the first time.</p>
+
+<p>Latest stable release: <a href="http://cran.r-project.org/package=data.table"><strong>on CRAN</strong></a>.</p>
+
+<p>Please vote for the package <a href="http://crantastic.org/packages/unknownR"><strong>here</strong></a>.</p>
+
+<p> The development summary page you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>.</p>
 <!-- Start of StatCounter Code -->
 <script type="text/javascript">
 var sc_project=6700858; 
@@ -52,3 +54,4 @@ alt="website statistics"></a></div></noscript>
 <!-- End of StatCounter Code -->
 </body>
 </html>
+

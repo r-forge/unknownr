@@ -1,4 +1,4 @@
-unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20) {
+unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2) {
     i=lock=esc=dlg=bool=starting=qlabel=qtext=unknowns=NULL
     knowns=numall=numkno=numunk=numleft=timeleft=num1=num2=num3=num4=num5=NULL
     numlabel1=numlabel2=numlabel3=numlabel4=numlabel5=NULL
@@ -74,7 +74,7 @@ assign(".Red", function(thisi) {
     if (thisi==i && !lock && !esc) {
         tkconfigure(qlabel,fg="red")
         xx = parse(text=paste(".DontKnow(",thisi,")"))
-        tcl("after",2000,xx)
+        tcl("after",redDelay*1000,xx)
     }
 }, .GlobalEnv)
 
@@ -100,7 +100,7 @@ Next = function() {
         i <<- i+1
         tclvalue(qtext) = unknowns[i]
         xx = parse(text=paste(".Red(",i,")"))
-        tcl("after",3000,xx)
+        tcl("after",delay*1000,xx)
         starting <<- FALSE
         lock <<- TRUE
         tcl("after",250,Unlock)
@@ -206,7 +206,7 @@ Skip = function() {
     numlabel4 = tklabel(dlg,text="Remaining:",font=other)
     numlabel5 = tklabel(dlg,text="Estimated time:",font=other)
     tkgrid(numlabel1,num1)
-    tkgrid(numlabel2,num2,label6<-tklabel(dlg,text="SPACE : ",fg="blue",font=other),label7<-tklabel(dlg,text="I know it",fg="blue",font=other))
+    tkgrid(numlabel2,num2,label6<-tklabel(dlg,text="SPACE : ",fg="blue",font=other),label7<-tklabel(dlg,text="I know it/Ignore it",fg="blue",font=other))
     tkgrid(numlabel3,num3,label8<-tklabel(dlg,text="ENTER : ",fg="red",font=other),label9<-tklabel(dlg,text="I don't know it",fg="red",font=other))
     tkgrid(numlabel4,num4,label10<-tklabel(dlg,text="ESC : ",font=other),label11<-tklabel(dlg,text="Pause/Save/Quit",font=other))
     backbutton = tkbutton(dlg,text="Back",command=PressedBack,font=other,bd=2,state="disabled")
