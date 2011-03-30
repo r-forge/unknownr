@@ -25,11 +25,11 @@ unk(fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
 \value{
    Nothing is returned. Responses are saved to \code{fnam}.
 }
-\seealso{ \code{\link{learn}}
+\seealso{ \code{\link{learn}} }
 \references{
    Homepage: \url{http://unknownr.r-forge.r-project.org/}
 
-   Many thanks to Greg Snow for his answer on R-help, 28 May 2010. A search by the author of unknownR returned his answer several months later. \code{unk() makes extensive use of the \code{after} function in Tcl/Tk.
+   Many thanks to Greg Snow for his answer on R-help, 28 May 2010. A search by the author of unknownR returned his answer several months later. \code{unk()} makes extensive use of the \code{after} function in Tcl/Tk.
 
    \url{http://r.789695.n4.nabble.com/Wait-for-keystroke-or-timeout-tp2233895p2234858.html} 
 }

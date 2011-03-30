@@ -4,6 +4,8 @@ unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
     numlabel1=numlabel2=numlabel3=numlabel4=numlabel5=NULL
     savedknowns=nowknowmode=backbutton=NULL
     require(tcltk)
+    if (delay<1) stop("delay must be at least 1 second")
+    if (redDelay<1) stop("redDelay must be at least 1 second")
     
 saveanswers=function() {
     knowns = savedknowns
@@ -104,7 +106,9 @@ Next = function() {
         } else {
             tclvalue(qtext) = "Quit & save, then run learn()"
         }
-        if(i>0) tkconfigure(backbutton,state="active")
+        if(i>0) tkconfigure(backbutton,state="normal")
+        tkconfigure(helpbutton,state="normal")
+        tkconfigure(homepagebutton,state="normal")
     } else {
         i <<- i+1
         tclvalue(qtext) = unknowns[i]
@@ -115,6 +119,8 @@ Next = function() {
         tcl("after",250,Unlock)
         # lock prevents presses intended for the very end of red which are a little too late counting as a know for the next one. Unexpected that user will see function, recognise, know it and press space all within 250ms. Also prevents holding down space.
         tkconfigure(backbutton,state="disabled")
+        tkconfigure(helpbutton,state="disabled")
+        tkconfigure(homepagebutton,state="disabled")
     }
 }
 
@@ -134,7 +140,9 @@ Esc = function() {
         if (!bool[i]) i <<- i-1  # Quick ESC following SPACE should not forget the known
         starting <<- TRUE
         tclvalue(qtext) = "Press SPACE to resume"
-        if(i>0) tkconfigure(backbutton,state="active")
+        if(i>0) tkconfigure(backbutton,state="normal")
+        tkconfigure(helpbutton,state="normal")
+        tkconfigure(homepagebutton,state="normal")
     }
 }
 
