@@ -204,7 +204,7 @@ Skip = function() {
     tkgrid(tklabel(dlg,text=""))
     tkgrid(tklabel(dlg,text=title,font=other),columnspan=4)
     tkgrid(tklabel(dlg,text=""))
-    tkgrid(helpbutton,column=3,row=1,sticky="w",ipadx="50")
+    tkgrid(helpbutton,column=3,row=1,sticky="w",padx="50")
     tkgrid(homepagebutton,column=3,row=1,sticky="e")
     qtext = tclVar("Press SPACE to start")
     qlabel = tklabel(dlg,text=tclvalue(qtext),width=max(30,max(nchar(funlist))),font=large,relief="ridge",bd=10,bg="light yellow")
