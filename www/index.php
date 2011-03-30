@@ -31,9 +31,10 @@ How many of them do you know you don't know?<br>
 Run unk() to discover your unknown unknowns.<br>
 It's fast and it's fun!</p>
 
-<p>The package was presented at LondonR March 2011 <a href="http://www.londonr.org/unknownR.pdf"<strong>here</strong></a>. This presentation serves as a quick introduction. It is strongly recommended to read this before running unk() for the first time.</p>
+<p>The package was presented at LondonR March 2011. The<br>
+<a href="http://www.londonr.org/unknownR.pdf"<strong>presentation</strong></a> serves as a quick introduction to the package.</p>
 
-<p>Latest stable release: <a href="http://cran.r-project.org/package=data.table"><strong>on CRAN</strong></a>.</p>
+<p>Latest stable release <a href="http://cran.r-project.org/package=unknownR"><strong>on CRAN</strong></a>.</p>
 
 <p>Please vote for the package <a href="http://crantastic.org/packages/unknownR"><strong>here</strong></a>.</p>
 

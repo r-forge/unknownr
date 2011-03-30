@@ -14,25 +14,29 @@ unk(fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
   \item{redDelay}{ How long a function is red before 'Don't know' is assumed, by default 2 seconds. }
 }
 \details{
-  Fast and fun way to discover useful functions in \R that you didn't know you didn't know. Cheat sheets, reference cards, tip of the days, ticking off the index of reference manuals are other good ways to discover unknown unknowns, but how do you know you haven't missed something, and how do you keep up to date?
+  Fast and fun way to discover useful functions in \R that you didn't know you didn't know. Cheat sheets, reference cards, tip of the days, ticking off the index of reference manuals and books (manually) are other good ways to discover unknown unknowns, but how do you know you haven't missed something, and how do you keep up to date?
   
-  Using \code{unk()} for the first time takes about 40 mins. Your \emph{known knowns} are saved leaving a list of \emph{known unknowns} to work through at your leisure. Once you 'know' all functions you have confidence you haven't missed anything. Chances are you will learn at least one new function that you wished you knew before.
+  Using \code{unk()} for the first time takes about 40 mins. Your \emph{known knowns} are saved leaving a list of \emph{known unknowns} to work through at your leisure (using learn()). Once you 'know' all functions you have confidence you haven't missed anything. Chances are you will learn at least one new function that you wished you knew before.
   
   When \R is upgraded, simply run \code{unk()} again. Any new functions added by \R-core will automatically be presented to you (in case you missed them from NEWS).
   
-  Tip: If you know you don't need to know a function, then just say you know it. That way it won't pop up in your known unknowns. So, pressing SPACE means 'I don't care about it' and/or 'I know it'. Really, you are panning for gold.
+  Tip: If you can tell from a function name alone that you aren't interested in it (and you are sure) then press SPACE to ignore it. Knowing that you don't need to know something is considered the same as knowing you know it by this package. That way it won't pop up in your known unknowns. Really, you are panning for gold.
 }
 \value{
-   A vector of known unknown function names is silently returned and written to the global environment as \code{tolearn}.
+   Nothing is returned. Responses are saved to \code{fnam}.
 }
+\seealso{ \code{\link{learn}}
 \references{
-   Many thanks to Greg Snow for his answer on R-help, 28 May 2010. A search by the author of unknownR returned his answer several months later (\code{unk()} makes extensive use of the 'after' function in Tcl/Tk).
-   
+   Homepage: \url{http://unknownr.r-forge.r-project.org/}
+
+   Many thanks to Greg Snow for his answer on R-help, 28 May 2010. A search by the author of unknownR returned his answer several months later. \code{unk() makes extensive use of the \code{after} function in Tcl/Tk.
+
    \url{http://r.789695.n4.nabble.com/Wait-for-keystroke-or-timeout-tp2233895p2234858.html} 
 }
 \examples{
    \dontrun{
-   unk()}
+   unk()
+   learn()}
 }
 
 

@@ -44,6 +44,15 @@ PressedBack = function() {
    if (i==0) tkconfigure(backbutton,state="disabled")
 }
 
+PressedHelp = function() {
+    print(help("unk",package="unknownR"))
+    tkconfigure(helpbutton,foreground="purple")
+}
+PressedHomepage = function() {
+    browseURL("http://unknownr.r-forge.r-project.org/")
+    tkconfigure(homepagebutton,foreground="purple")
+}
+
 Know = function() {
     if (lock) return()
     if (!starting) {
@@ -166,23 +175,29 @@ Skip = function() {
             cat("Nothing to learn! You know all",length(funlist),"functions.\n")
             return()
         }
-        title = "Do you (now) know? :"
+        title = "Do you (now) know?"
         nowknowmode = TRUE
     } else {
-        title = "Do you know? :"
+        title = "Do you know?"
         nowknowmode = FALSE
     }
     knowns = knowns
 
     large = tkfont.create(family="courier",size=size*2,weight="bold")
     other = tkfont.create(family="ariel",size=size,weight="bold")
+    hlink = tkfont.create(family="ariel",size=size,weight="bold",underline="true")
     tclServiceMode(FALSE)
     dlg = tktoplevel()
     tkwm.title(dlg,"unknownR")
+
+    bg = tail(strsplit(tclvalue(tkconfigure(dlg,"-background"))," ")[[1]],1)
+    helpbutton = tkbutton(dlg,text="Help",command=PressedHelp,font=hlink,activeforeground="blue",relief="flat",bd=0,activebackground=bg)
+    homepagebutton = tkbutton(dlg,text="Homepage",command=PressedHomepage,font=hlink,activeforeground="blue",relief="flat",bd=0,activebackground=bg)
     tkgrid(tklabel(dlg,text=""))
     tkgrid(tklabel(dlg,text=title,font=other),columnspan=4)
     tkgrid(tklabel(dlg,text=""))
-    
+    tkgrid(helpbutton,column=3,row=1,sticky="w",ipadx="50")
+    tkgrid(homepagebutton,column=3,row=1,sticky="e")
     qtext = tclVar("Press SPACE to start")
     qlabel = tklabel(dlg,text=tclvalue(qtext),width=max(30,max(nchar(funlist))),font=large,relief="ridge",bd=10,bg="light yellow")
     tkconfigure(qlabel,textvariable=qtext)
@@ -200,7 +215,7 @@ Skip = function() {
     num3 = tklabel(dlg,textvariable=numunk,width=10,anchor="e",fg="red",font=other)
     num4 = tklabel(dlg,textvariable=numleft,width=10,anchor="e",font=other)
     num5 = tklabel(dlg,textvariable=timeleft,width=10,anchor="e",font=other)
-    numlabel1 = tklabel(dlg,text="All functions:",font=other)  #relief="groove"
+    numlabel1 = tklabel(dlg,text="All functions:",font=other)
     numlabel2 = tklabel(dlg,text="Known:",fg="blue",font=other)
     numlabel3 = tklabel(dlg,text="Unknown:",fg="red",font=other)
     numlabel4 = tklabel(dlg,text="Remaining:",font=other)
@@ -211,6 +226,7 @@ Skip = function() {
     tkgrid(numlabel4,num4,label10<-tklabel(dlg,text="ESC : ",font=other),label11<-tklabel(dlg,text="Pause/Save/Quit",font=other))
     backbutton = tkbutton(dlg,text="Back",command=PressedBack,font=other,bd=2,state="disabled")
     tkgrid(numlabel5,num5,backbutton,label12<-tklabel(dlg,text="Undo last answer",font=other))
+    tkgrid(tklabel(dlg,text=""),tklabel(dlg,text=""))
     tkgrid.configure(numlabel1,numlabel2,numlabel3,numlabel4,numlabel5,label6,label8,label10,backbutton,sticky="e")
     tkgrid.configure(num1,num2,num3,num4,num5,label7,label9,label11,label12,sticky="w")
     tkgrid.columnconfigure(dlg,0,weight=1)
@@ -227,7 +243,7 @@ Skip = function() {
     starting = TRUE
     
     tkbind(dlg,"<space>", Know)
-    tkbind(dlg,"<Return>", Skip)  # anticipate most people will go space or q to get through it quickly
+    tkbind(dlg,"<Return>", Skip)
     tkbind(dlg,"<Escape>", Esc)
     updatestatus()
     tclServiceMode(TRUE)
@@ -250,7 +266,6 @@ Skip = function() {
     }
     tkdestroy(dlg)
     invisible()
-
 }
 
 
