@@ -32,6 +32,9 @@ NEW FEATURES
         where you left off. Thanks to Sean O'Riordain for the
         suggestion.
         
+    o   unk() no longer returns 'tolearn'. learn() reads this
+        from .knowns.Rdata directly. Thanks to Sean O'Riordain
+        for the suggestion.
 
 
 
