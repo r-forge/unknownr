@@ -25,14 +25,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <a href="/"><img src="<?php echo $themeroot; ?>/images/logo.png" border="0" alt="R-Forge Logo" /> </a> </td> </tr>
 </table>
 
-<h2>Welcome to the unknownR project!</h2> 
+<h2>Welcome to the unknownR package for R</h2> 
 <p>Do you know how many functions there are in base R?<br>
 How many of them do you know you don't know?<br>
 Run unk() to discover your unknown unknowns.<br>
 It's fast and it's fun!</p>
 
 <p>The package was presented at LondonR March 2011. The<br>
-<a href="http://www.londonr.org/unknownR.pdf"<strong>presentation</strong></a> serves as a quick introduction to the package.</p>
+<a href="http://www.londonr.org/unknownR.pdf"><strong>presentation</strong></a> serves as a quick introduction to the package.</p>
 
 <p>Latest stable release <a href="http://cran.r-project.org/package=unknownR"><strong>on CRAN</strong></a>.</p>
 

@@ -5,9 +5,10 @@
   Starts GUI interface for unknownR.
 }
 \usage{
-unk(fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
+unk(pkgs=c("base","utils"),fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
 }
 \arguments{
+  \item{pkgs}{ Names of packages from which to build function list. }
   \item{fnam}{ Full path to data file containing your knowns. By default this is .knowns.Rdata in your home folder. }
   \item{size}{ Font size. The main label displays the function name at \code{2*size}. }
   \item{delay}{ How long each function is displayed before being turned red, by default 3 seconds. }

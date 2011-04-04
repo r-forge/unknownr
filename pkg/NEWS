@@ -16,10 +16,19 @@ NEW FEATURES
         seconds each function is displayed (3) and then turned
         red (2).
         
+    o   unk gains pkgs argument, by default c("base","utils").
+        Any set of packages can be passed here, as suggested
+        by Jean-Robert Avettand-Fenoel (FR#1320). Accordingly,
+        ~/.knowns.Rdata now saves the package of each function
+        for cases where the same function name is in several
+        packages.
+        
+    o   The .Rd manual page is retrieved and functions from
+        internal pages (such as ns-internal and base-internal)
+        are filtered, reducing 878 to 809 (using R 2.12.1).
+        
+        
 
-BUG FIXES
-
-    o
 
         ********************************************
         **                                        **

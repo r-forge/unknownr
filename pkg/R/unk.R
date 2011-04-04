@@ -1,15 +1,16 @@
-unk = function(fnam = path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2) {
-    i=lock=esc=dlg=bool=starting=qlabel=qtext=unknowns=NULL
+unk = function(pkgs=c("base","utils"),fnam = path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2) {
+    i=lock=esc=dlg=bool=starting=qlabel=qtext=pkgtext=unknowns=NULL
     knowns=numall=numkno=numunk=numleft=timeleft=num1=num2=num3=num4=num5=NULL
     numlabel1=numlabel2=numlabel3=numlabel4=numlabel5=NULL
     savedknowns=nowknowmode=backbutton=NULL
     require(tcltk)
     if (delay<1) stop("delay must be at least 1 second")
     if (redDelay<1) stop("redDelay must be at least 1 second")
+    if (is.name(substitute(pkgs))) pkgs = as.character(substitute(pkgs))
     
 saveanswers=function() {
     knowns = savedknowns
-    knowns[head(unknowns,i)] = head(bool,i)
+    knowns[head(unknowns,i)] = 1*head(bool,i)  # will reset 0.5 to 0 if don't know (=> re-learn)
     knowns = knowns[order(names(knowns))]
     savedknowns <<- knowns
     save(list="knowns",file=fnam)
@@ -19,11 +20,11 @@ saveanswers=function() {
 
 updatestatus = function() {
     tclvalue(numall) <<- length(get(".unk.funlist"))
-    tclvalue(numkno) <<- sum(knowns)+sum(bool)
+    tclvalue(numkno) <<- sum(knowns==1)+sum(bool)
     if (nowknowmode) {
-        tclvalue(numunk) <<- sum(!knowns)-sum(bool)
+        tclvalue(numunk) <<- sum(knowns<1)-sum(bool)
     } else {
-        tclvalue(numunk) <<- sum(!knowns)+sum(!head(bool,i))
+        tclvalue(numunk) <<- sum(knowns<1)+sum(!head(bool,i))
     }
     n = length(unknowns) - i
     tclvalue(numleft) <<- n
@@ -40,6 +41,7 @@ PressedBack = function() {
        bool[i]<<-FALSE
        i<<-i-1
        tclvalue(qtext) = "Press SPACE to resume"
+       tclvalue(pkgtext) = ""
        # in case user had finished (changing text) then pressed back
    }
    updatestatus()
@@ -47,7 +49,7 @@ PressedBack = function() {
 }
 
 PressedHelp = function() {
-    print(help("unk",package="unknownR"))
+    print(help("unk",package="unknownR",help_type="html"))
     tkconfigure(helpbutton,foreground="purple")
 }
 PressedHomepage = function() {
@@ -106,12 +108,15 @@ Next = function() {
         } else {
             tclvalue(qtext) = "Quit & save, then run learn()"
         }
+        tclvalue(pkgtext) = ""
         if(i>0) tkconfigure(backbutton,state="normal")
         tkconfigure(helpbutton,state="normal")
         tkconfigure(homepagebutton,state="normal")
     } else {
         i <<- i+1
-        tclvalue(qtext) = unknowns[i]
+        thisunk = strsplit(unknowns[i],split=":")
+        tclvalue(pkgtext) = paste(thisunk[[1]][1],":",sep="")
+        tclvalue(qtext) = thisunk[[1]][2]
         xx = parse(text=paste(".Red(",i,")"))
         tcl("after",delay*1000,xx)
         starting <<- FALSE
@@ -140,6 +145,7 @@ Esc = function() {
         if (!bool[i]) i <<- i-1  # Quick ESC following SPACE should not forget the known
         starting <<- TRUE
         tclvalue(qtext) = "Press SPACE to resume"
+        tclvalue(pkgtext) = ""
         if(i>0) tkconfigure(backbutton,state="normal")
         tkconfigure(helpbutton,state="normal")
         tkconfigure(homepagebutton,state="normal")
@@ -158,17 +164,29 @@ Skip = function() {
     if (file.exists(fnam)) {
         tt = load(fnam)
         if (!identical(tt,"knowns")) stop(fnam,"must contain a single object named 'knowns'")
-        if (!is.logical(knowns)) stop("knowns object in",fnam,"must be a logical vector")
+        if (is.logical(knowns)) {
+            if (any(grep(":",names(knowns)))) stop("Detected 0.1 format but ':' exists in names")
+            tt = names(knowns)%in%objects("package:base")
+            ss = names(knowns)%in%objects("package:utils")
+            if (!all(tt | ss)) stop("Detected 0.1 format but not all from base or utils")
+            names(knowns)[tt] = paste("base:",names(knowns)[tt],sep="")
+            names(knowns)[ss] = paste("utils:",names(knowns)[ss],sep="")
+            mode(knowns) = "numeric"
+            cat("Read old format of knowns.Rdata ok\n")
+            browser()
+        }
+        if (!is.numeric(knowns)) stop("knowns object in",fnam,"must be a numeric vector")
         if (is.null(names(knowns)) || any(duplicated(names(knowns)))) stop("Either knowns in",fnam,"has no names, or there is a duplicate in the names")
+	    if (!identical(grep(":",names(knowns)),seq(1,length(knowns)))) stop("':' does not exist in all names(knowns)")
 	    # cat("Read ",length(knowns)," known/unknown response",if(length(knowns)>1)"s"," from ",fnam," ok\n",sep="")
 	    savedknowns = knowns
     } else {
 	    cat("First time running unk(). File",fnam,"does not exist\n")
-	    knowns=logical(0)
-	    savedknowns=logical(0)
+	    savedknowns=knowns=numeric(0)
     }
-    if (!exists(".unk.funlist",.GlobalEnv)) {
-        funlist = funlist()
+    if (!exists(".unk.funlist",.GlobalEnv) || !all(pkgs %in% attr(get(".unk.funlist"),"pkgs"))) {
+        funlist = funlist(pkgs)
+        attr(funlist,"pkgs") = pkgs
         assign(".unk.funlist",funlist,.GlobalEnv)
     } else {
         # the funlist won't have changed in this R session. Restart R (or rm(.unk.funlist)) to build the list again.
@@ -178,7 +196,7 @@ Skip = function() {
     knowns = knowns[names(knowns) %in% funlist]  # e.g. if swapping between packages, or a function in deprecated in base in future
     if (!length(unknowns)) {
         # All unknown unknowns have been moved to known knowns or known unknowns.
-        unknowns = names(knowns)[!knowns]
+        unknowns = names(knowns)[knowns!=1]
         if (!length(unknowns)) {
             cat("Nothing to learn! You know all",length(funlist),"functions.\n")
             return()
@@ -189,11 +207,11 @@ Skip = function() {
         title = "Do you know?"
         nowknowmode = FALSE
     }
-    knowns = knowns
-
+    
     large = tkfont.create(family="courier",size=size*2,weight="bold")
     other = tkfont.create(family="ariel",size=size,weight="bold")
     hlink = tkfont.create(family="ariel",size=size,weight="bold",underline="true")
+    small = tkfont.create(family="ariel",size=size/2,weight="bold")
     tclServiceMode(FALSE)
     dlg = tktoplevel()
     tkwm.title(dlg,"unknownR")
@@ -206,6 +224,10 @@ Skip = function() {
     tkgrid(tklabel(dlg,text=""))
     tkgrid(helpbutton,column=3,row=1,sticky="w",padx="50")
     tkgrid(homepagebutton,column=3,row=1,sticky="e")
+    pkgtext = tclVar("")
+    pkgname = tklabel(dlg,text=tclvalue(pkgtext),font=small)
+    tkconfigure(pkgname,textvariable=pkgtext)
+    tkgrid(pkgname,column=0,row=2,sticky="w",padx="20")
     qtext = tclVar("Press SPACE to start")
     qlabel = tklabel(dlg,text=tclvalue(qtext),width=max(30,max(nchar(funlist))),font=large,relief="ridge",bd=10,bg="light yellow")
     tkconfigure(qlabel,textvariable=qtext)
@@ -261,11 +283,10 @@ Skip = function() {
         saveanswers()
     }
     if (length(knowns) == length(funlist)) {
-        tolearn = names(knowns)[!knowns]
-        if (length(tolearn)) {
-            assign("tolearn",tolearn,envir=.GlobalEnv)
-            cat("Now type learn() to view help for your",length(tolearn),"known unknowns. Run unk() again when you know them.\n")
-        } else {
+        if (any(knowns==0)) {
+            cat("Now type learn() to view help for your",sum(knowns==0),"known unknowns. Run unk() again when you know them.\n")
+        }
+        if (all(knowns==1)) {
             cat("Congratulations! You have no known unknown functions left to learn.\nWe hope this package helped you discover something you didn't know you didn't know.\n")
         }
     } else {
