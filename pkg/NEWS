@@ -27,7 +27,12 @@ NEW FEATURES
         internal pages (such as ns-internal and base-internal)
         are filtered, reducing 878 to 809 (using R 2.12.1).
         
+    o   learn() now saves a learn()-ed status to .knowns.Rdata
+        so you can come back to learn() later and continue
+        where you left off. Thanks to Sean O'Riordain for the
+        suggestion.
         
+
 
 
         ********************************************

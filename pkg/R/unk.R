@@ -172,8 +172,7 @@ Skip = function() {
             names(knowns)[tt] = paste("base:",names(knowns)[tt],sep="")
             names(knowns)[ss] = paste("utils:",names(knowns)[ss],sep="")
             mode(knowns) = "numeric"
-            cat("Read old format of knowns.Rdata ok\n")
-            browser()
+            cat("Read old format of .knowns.Rdata ok\n")
         }
         if (!is.numeric(knowns)) stop("knowns object in",fnam,"must be a numeric vector")
         if (is.null(names(knowns)) || any(duplicated(names(knowns)))) stop("Either knowns in",fnam,"has no names, or there is a duplicate in the names")
