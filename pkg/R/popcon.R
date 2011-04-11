@@ -56,6 +56,7 @@ popcon = function(scrape=TRUE) {
         rownames(ans) = NULL
         ans = ans[,c("pkgs","vote","users","numvotes","score","rank","crantasticrank","insidervotes")]
         colnames(ans)[7:8] = c("Crantastic.rank","Inside-R.votes")
+        ans <<- ans
     }
     
     fnam = path.expand("~/R/unknownr/www/toppkgs.csv")
@@ -67,7 +68,8 @@ popcon = function(scrape=TRUE) {
     fnam = path.expand("~/R/unknownr/www/toppkgs.html")
     require(hwriter)  # Nice pkg btw, yes I have voted for it.
     p = openPage(fnam, link.css="hwriter.css")
-    hwrite('<br>This package list is compiled and used by <a href="http://unknownr.r-forge.r-project.org/">unknownR</a> to help users<br>easily and quickly discover useful packages rated by other users.<br><br>',p)    
+    hwrite('<br>This package list is compiled and used by <a href="http://unknownr.r-forge.r-project.org/">unknownR</a> to help users<br>easily and quickly discover useful packages rated by other users. By<br>',p)
+    hwrite('default the top 30 are included in unknownR\'s list.<br><br>',p)    
     hwrite('There are very few votes for many packages. Please vote to help other users.<br>',p)
     hwrite('Note that Inside-R appears to multiply votes by a graduated scaling factor, starting at 28.<br>',p)
     hwrite(c('See',hwrite('footnote', link='#footnote'),'for why Crantastic\'s ranking is not used.<br><br>'),p,table=FALSE)
@@ -78,14 +80,16 @@ popcon = function(scrape=TRUE) {
                    col.style=list(adjustedrank='font-style:italic'),
                    col.links=list(pkgs=paste("http://www.inside-r.org/packages/cran/",ans$pkgs,sep="")))
     
-    hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> (top 5 of which are on <a href="http://crantastic.org">homepage</a>) seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
-    hwrite('<ul><li>Packages with a single 5* vote are ranked highly because they have the maximum vote of 5.0.',p)
+    hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> (top 5 of which are on it\'s <a href="http://crantastic.org">homepage</a>) seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
+    hwrite('<ul><li>Packages with just one single vote (5*) are ranked highly because they have the maximum vote of 5.0.',p)
     hwrite('<li>ggplot2 is ranked 41st (when writing this), which doesn\'t seem correct given it has the most votes and the most users, by far.',p)
-    hwrite('<li>Some packages on page <a href="http://crantastic.org/popcon?page=2"><strong>2</strong></a> and <a href="http://crantastic.org/popcon?page=3"><strong>3</strong></a> have many votes and users, but are harder to find.</ul>',p)
+    hwrite('<li>Some packages on page <a href="http://crantastic.org/popcon?page=2">2</a> and <a href="http://crantastic.org/popcon?page=3">3</a> have many votes and users, but are harder to find.</ul>',p)
     hwrite('The data is scraped and a default 3* vote is added to each package to address these issues.<br>',p)
     hwrite('No claim is made that this is the <em>best</em> method, just that it is better than Crantastic\'s rank.<br>',p)
     hwrite('This modification has been suggested to Hadley and he is considering. If popcon is changed, this page can be removed.<br>',p)
-    hwrite('The R function that generates this page, including the adjustment formula, is <a href="https://r-forge.r-project.org/scm/viewvc.php/pkg/R/popcon.R?view=markup&root=unknownR">here</a>.<br><br>',p)
+    hwrite('The R function that generates this page, including the adjustment formula, is <a href="https://r-forge.r-project.org/scm/viewvc.php/pkg/R/popcon.R?view=markup&root=unknownr">here</a>.<br><br>',p)
+    hwrite('The content and data from <a href="http://crantastic.org/">Crantastic</a> and <a href="http://www.inside-r.org/">Inside-R</a> is available under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC Attribution-Share Alike 3.0 Unported</a> license.<br>',p)
+    hwrite('The derived data on this page is also available under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC Attribution-Share Alike 3.0 Unported</a> license.',p)
     hwrite('<script type="text/javascript">var sc_project=6700858;var sc_invisible=1; var sc_security="3e5c47ee";</script><script type="text/javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><div class="statcounter"><a title="website statistics" href="http://statcounter.com/free-web-stats/" target="_blank"><img class="statcounter" src="http://c.statcounter.com/6700858/0/3e5c47ee/1/" alt="website statistics"></a></div></noscript>',p)
     closePage(p)
     cat("Written",fnam,"\n")

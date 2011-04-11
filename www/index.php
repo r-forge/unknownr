@@ -38,7 +38,7 @@ It's fast and it's fun!</p>
 
 <p>Please vote for the package <a href="http://crantastic.org/packages/unknownR"><strong>here</strong></a>.</p>
 
-<p>List of <a href="toppkgs.html"><strong>Top packages</strong></a> used by unknownR.</p>
+<p>NEW: List of <a href="toppkgs.html"><strong>top packages</strong></a> now included in unknownR's list.</p>
 
 <p> The development summary page you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>.</p>
 <!-- Start of StatCounter Code -->
