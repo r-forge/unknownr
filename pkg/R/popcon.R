@@ -14,16 +14,16 @@ popcon = function(scrape=TRUE) {
             pkgs = gsub(".+>","",pkgs)
             d = sapply(mapply(seq,n+1,c(tail(n-1,-1),tail(n,1)+15)),function(i)paste(html[i],collapse=""))
             d = strsplit(d,split="<td>")
-            vote = suppressWarnings(as.numeric(gsub("/.*","",sapply(d,"[",4))))
+            avgvote = suppressWarnings(as.numeric(gsub("/.*","",sapply(d,"[",4))))
             users = suppressWarnings(as.integer(gsub("<.*","",sapply(d,"[",5))))
-            data.frame(pkgs,vote,users,stringsAsFactors=FALSE)
+            data.frame(pkgs,avgvote,users,stringsAsFactors=FALSE)
         }))
-        nas = is.na(popcon$vote) | is.na(popcon$users)
+        nas = is.na(popcon$avgvote) | is.na(popcon$users)
         if (any(nas)) {
             cat("Likely blanks in popcon (i.e. no vote) :\n")
             print(popcon[nas,,drop=FALSE])
         }
-        # now fetch the number of votes, only on crantastic package's page
+        # now fetch the number of votes (which is only on the detail page for each package)
         numvotes = sapply(popcon$pkgs, function(i){
             cat("Fetching",i,"from Crantastic ... ")
             html = scan(paste(crantasticpath,gsub("[.]","-",i),sep=""),character(),quiet=TRUE)
@@ -45,16 +45,16 @@ popcon = function(scrape=TRUE) {
         })
         ans = cbind(popcon,numvotes,insidervotes)
         
-        ans$score = round(with(ans, ((vote*numvotes+3)/(numvotes+1) + (users*5+3)/(users+1))/2),3)
+        ans$score = round(with(ans, ((avgvote*numvotes+3)/(numvotes+1) + (users*5+3)/(users+1))/2),3)
         # all packages start with one 3* vote
-        # an "i use this!" counts as a 5*, again starting with one 3* user
-        # then equally weight votes and users
+        # an "i use this!" counts as a 5*, again starting with one default 3*
+        # then equally weight vote and users
         
         ans$crantasticrank = 1:nrow(ans)
         ans = ans[order(-ans$score),]
         ans$rank = 1:nrow(ans)
         rownames(ans) = NULL
-        ans = ans[,c("pkgs","vote","users","numvotes","score","rank","crantasticrank","insidervotes")]
+        ans = ans[,c("pkgs","avgvote","numvotes","users","score","rank","crantasticrank","insidervotes")]
         colnames(ans)[7:8] = c("Crantastic.rank","Inside-R.votes")
         ans <<- ans
     }
@@ -66,27 +66,27 @@ popcon = function(scrape=TRUE) {
     cat("Written",fnam,"\n")
     
     fnam = path.expand("~/R/unknownr/www/toppkgs.html")
-    require(hwriter)  # Nice pkg btw, yes I have voted for it.
+    require(hwriter)  # yes, I have voted for hwriter
     p = openPage(fnam, link.css="hwriter.css")
     hwrite('<br>This package list is compiled and used by <a href="http://unknownr.r-forge.r-project.org/">unknownR</a> to help users<br>easily and quickly discover useful packages rated by other users. By<br>',p)
     hwrite('default the top 30 are included in unknownR\'s list.<br><br>',p)    
-    hwrite('There are very few votes for many packages. Please vote to help other users.<br>',p)
-    hwrite('Note that Inside-R appears to multiply votes by a graduated scaling factor, starting at 28.<br>',p)
-    hwrite(c('See',hwrite('footnote', link='#footnote'),'for why Crantastic\'s ranking is not used.<br><br>'),p,table=FALSE)
-    
+    hwrite(c('Data is scraped from Crantastic and Inside-R. See',hwrite('footnote', link='#footnote'),'.<br>'),p,table=FALSE)
+    hwrite('Note that Inside-R appears to multiply the number of votes by a scaling factor.<br><br>',p)
+    colnames(ans)[1]="CRAN package"
     hwrite(ans, p, row.names=FALSE,
+                   table.style="margin-left:0px",
                    row.bgcolor=list('#aaffaa'),
                    row.style=list('font-weight:bold'),
-                   col.style=list(adjustedrank='font-style:italic'),
-                   col.links=list(pkgs=paste("http://www.inside-r.org/packages/cran/",ans$pkgs,sep="")))
+                   col.style=list(avgvote='text-align:right',users='text-align:right',numvotes='text-align:right',score='text-align:right',rank='text-align:right',Crantastic.rank='text-align:right',"Inside-R.votes"='text-align:right'),
+                   col.links=list("CRAN package"=paste("http://www.inside-r.org/packages/cran/",ans[,1],sep="")))
     
     hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> (top 5 of which are on it\'s <a href="http://crantastic.org">homepage</a>) seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
-    hwrite('<ul><li>Packages with just one single vote (5*) are ranked highly because they have the maximum vote of 5.0.',p)
+    hwrite('<ul><li>Packages with just one single vote (5*) are ranked highly because they have the maximum vote of 5.000.',p)
     hwrite('<li>ggplot2 is ranked 41st (when writing this), which doesn\'t seem correct given it has the most votes and the most users, by far.',p)
     hwrite('<li>Some packages on page <a href="http://crantastic.org/popcon?page=2">2</a> and <a href="http://crantastic.org/popcon?page=3">3</a> have many votes and users, but are harder to find.</ul>',p)
     hwrite('The data is scraped and a default 3* vote is added to each package to address these issues.<br>',p)
     hwrite('No claim is made that this is the <em>best</em> method, just that it is better than Crantastic\'s rank.<br>',p)
-    hwrite('This modification has been suggested to Hadley and he is considering. If popcon is changed, this page can be removed.<br>',p)
+    hwrite('This adjustment has been suggested to Hadley. If popcon is changed, this page can be removed.<br>',p)
     hwrite('The R function that generates this page, including the adjustment formula, is <a href="https://r-forge.r-project.org/scm/viewvc.php/pkg/R/popcon.R?view=markup&root=unknownr">here</a>.<br><br>',p)
     hwrite('The content and data from <a href="http://crantastic.org/">Crantastic</a> and <a href="http://www.inside-r.org/">Inside-R</a> is available under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC Attribution-Share Alike 3.0 Unported</a> license.<br>',p)
     hwrite('The derived data on this page is also available under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC Attribution-Share Alike 3.0 Unported</a> license.',p)
