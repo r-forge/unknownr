@@ -3,6 +3,7 @@ funlist = function(pkgs,top) {
     # like to 'know'. Exclude the many as.* methods, just
     # including "as" once for example. Include non-methods
     # that may look like methods such as 'write.table'.
+    # Exclude functions in help file ns-internal and similar.
     require(tcltk)
     xx = unlist(lapply(pkgs,function(x){
         ans = objects(paste("package:",x,sep=""))
@@ -34,7 +35,6 @@ funlist = function(pkgs,top) {
 	    setTkProgressBar(pb,i/length(nodots))  
         NULL
     }))
-    cat("\n");flush.console()
     if (length(grep("^[^.]*$",realmethods))) stop("some methods don't have any .")
     xx = xx[!xx %in% realmethods]
     exclude = c("^as[.].+",
@@ -75,16 +75,17 @@ funlist = function(pkgs,top) {
     # cat("Reduced",before,"to",length(xx),"using manual filter on .Rd names\n")
     
     pkgs = rownames(installed.packages(priority="high"))  # base and recommended
+    pkgs = pkgs[!pkgs %in% c("base","utils")]
     if (top>0) {
         setTimeLimit(elapsed=10)
         cat("Reading toppkgs ...");flush.console()
         toppkgs = try(read.table("http://unknownr.r-forge.r-project.org/toppkgs.csv",skip=1,sep=",",header=TRUE,stringsAsFactors=FALSE))
         setTimeLimit(elapsed=Inf)
         if (inherits(toppkgs,"try-error")) { 
-            cat("failed. Continuing without.\n")
+            cat("likely internet connection problem. Continuing without packages this time.\n")
         } else {
             cat("done.\n")
-            assign(".unk.toppkgs",toppkgs,.GlobalEnv)  # unk will present votes and users to user
+            assign(".unk.toppkgs",toppkgs,.GlobalEnv)
             pkgs = sort(unique(c(head(toppkgs$pkgs,top),pkgs)))
         }
     }

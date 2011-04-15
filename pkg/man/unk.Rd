@@ -5,7 +5,7 @@
   Starts GUI interface for unknownR.
 }
 \usage{
-unk(pkgs=c("base","utils"),fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2)
+unk(pkgs=c("base","utils"),fnam=path.expand("~/.knowns.Rdata"),top=30,size=20,delay=3,redDelay=2)
 }
 \arguments{
   \item{pkgs}{ Names of packages from which to build function list. }
@@ -27,11 +27,12 @@ unk(pkgs=c("base","utils"),fnam=path.expand("~/.knowns.Rdata"),size=20,delay=3,r
 \value{
    Nothing is returned. Responses are saved to \code{fnam}.
 }
-\seealso{ \code{\link{learn}} }
+\seealso{ \code{\link{learn}} 
+\if{html}{\out{<script type="text/javascript">var sc_project=6700858;var sc_invisible=1; var sc_security="3e5c47ee";</script><script type="text/javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><div class="statcounter"><a title="website statistics" href="http://statcounter.com/free-web-stats/" target="_blank"><img class="statcounter" src="http://c.statcounter.com/6700858/0/3e5c47ee/1/" alt="website statistics"></a></div></noscript>}}}
 \references{
    Homepage: \url{http://unknownr.r-forge.r-project.org/}
 
-   Many thanks to Greg Snow for his answer on R-help, 28 May 2010. A search by the author of unknownR returned his answer several months later. \code{unk()} makes extensive use of the \code{after} function in Tcl/Tk.
+   Many thanks to Greg Snow for his answer on R-help, 28 May 2010. A search returned his answer several months later. \code{unk()} makes extensive use of the \code{after} function in Tcl/Tk.
 
    \url{http://r.789695.n4.nabble.com/Wait-for-keystroke-or-timeout-tp2233895p2234858.html} 
 }

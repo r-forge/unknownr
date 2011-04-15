@@ -2,7 +2,7 @@ unk = function(pkgs=c("base","utils"),fnam = path.expand("~/.knowns.Rdata"),top=
     i=lock=esc=dlg=bool=starting=qlabel=qtext=pkgtext=unknowns=NULL
     knowns=numall=numkno=numunk=numleft=timeleft=num1=num2=num3=num4=num5=NULL
     numlabel1=numlabel2=numlabel3=numlabel4=numlabel5=NULL
-    savedknowns=nowknowmode=backbutton=NULL
+    savedknowns=nowknowmode=NULL
     require(tcltk)
     if (delay<1) stop("delay must be at least 1 second")
     if (redDelay<1) stop("redDelay must be at least 1 second")
@@ -63,6 +63,10 @@ PressedHomepage = function() {
     browseURL("http://unknownr.r-forge.r-project.org/")
     tkconfigure(homepagebutton,foreground="purple")
 }
+PressedTopPkgs = function() {
+    browseURL("http://unknownr.r-forge.r-project.org/toppkgs.html")
+    tkconfigure(toppkgsbutton,foreground="purple")
+}
 
 Know = function() {
     if (lock) return()
@@ -119,23 +123,25 @@ Next = function() {
         if(i>0) tkconfigure(backbutton,state="normal")
         tkconfigure(helpbutton,state="normal")
         tkconfigure(homepagebutton,state="normal")
+        tkconfigure(toppkgsbutton,state="normal")
     } else {
         i <<- i+1
         thisunk = strsplit(unknowns[i],split=":")
         prefix = thisunk[[1]][1]
         if (prefix=="PACKAGE") {
-            tclvalue(pkgtext) = "Package:"
             pkg = thisunk[[1]][2]
+            tt1 = "PACKAGE:"
+            tt2 = paste("Package:",pkg)
             if (pkg %in% basepackages)
-                suffix = "base package"
-            if (pkg %in% recommendedpackages)
-                suffix = "recommended"
+                tt1 = "Base package included in R:"
             if (pkg %in% toppkgs$pkgs)
-                suffix = paste(toppkgs[pkg,"users"],"users")
-                # A recommended package may also be in the top 30
-            tclvalue(qtext) = paste(pkg," (",suffix,")",sep="")
+                tt1 = paste("Top",top,"package on Crantastic:")
+            if (pkg %in% recommendedpackages) 
+                tt1 = "R-core recommended package included in R:"
+            tclvalue(pkgtext) = tt1
+            tclvalue(qtext) = tt2
         } else {
-            tclvalue(pkgtext) = paste(prefix,":",sep="")
+            tclvalue(pkgtext) = paste(prefix,":",sep="")  # base or utils by default
             tclvalue(qtext) = thisunk[[1]][2]
         }
         xx = parse(text=paste(".Red(",i,")"))
@@ -147,6 +153,7 @@ Next = function() {
         tkconfigure(backbutton,state="disabled")
         tkconfigure(helpbutton,state="disabled")
         tkconfigure(homepagebutton,state="disabled")
+        tkconfigure(toppkgsbutton,state="disabled")
     }
 }
 
@@ -170,6 +177,7 @@ Esc = function() {
         if(i>0) tkconfigure(backbutton,state="normal")
         tkconfigure(helpbutton,state="normal")
         tkconfigure(homepagebutton,state="normal")
+        tkconfigure(toppkgsbutton,state="normal")
     }
 }
 
@@ -204,13 +212,16 @@ Skip = function() {
 	    cat("First time running unk(). File",fnam,"does not exist\n")
 	    savedknowns=knowns=numeric(0)
     }
-    if (!exists(".unk.funlist",.GlobalEnv) || !all(pkgs %in% attr(get(".unk.funlist"),"pkgs"))) {
+    if (!exists(".unk.funlist",.GlobalEnv)
+        || !all(pkgs %in% attr(get(".unk.funlist"),"pkgs"))
+        || (top>0 && !exists(".unk.toppkgs",.GlobalEnv))) {
         funlist = funlist(pkgs,top)
         attr(funlist,"pkgs") = pkgs
         assign(".unk.funlist",funlist,.GlobalEnv)
     } else {
         # the funlist won't have changed in this R session. Restart R (or rm(.unk.funlist)) to build the list again.
         funlist = get(".unk.funlist",.GlobalEnv)
+        if (top==0) funlist = grep("^PACKAGE:",funlist,invert=TRUE)
     }
     unknowns = funlist[!funlist %in% names(knowns)]
     knowns = knowns[names(knowns) %in% funlist]  # e.g. if swapping between packages, or a function in deprecated in base in future
@@ -239,15 +250,17 @@ Skip = function() {
     bg = tail(strsplit(tclvalue(tkconfigure(dlg,"-background"))," ")[[1]],1)
     helpbutton = tkbutton(dlg,text="Help",command=PressedHelp,font=hlink,activeforeground="blue",relief="flat",bd=0,activebackground=bg)
     homepagebutton = tkbutton(dlg,text="Homepage",command=PressedHomepage,font=hlink,activeforeground="blue",relief="flat",bd=0,activebackground=bg)
+    toppkgsbutton = tkbutton(dlg,text="Top pkgs",command=PressedTopPkgs,font=hlink,activeforeground="blue",relief="flat",bd=0,activebackground=bg)
     tkgrid(tklabel(dlg,text=""))
     tkgrid(tklabel(dlg,text=title,font=other),columnspan=4)
-    tkgrid(tklabel(dlg,text=""))
+    #tkgrid(tklabel(dlg,text=""))
     tkgrid(helpbutton,column=3,row=1,sticky="w",padx="50")
     tkgrid(homepagebutton,column=3,row=1,sticky="e")
+    tkgrid(toppkgsbutton,column=0,row=1,sticky="w")
     pkgtext = tclVar("")
     pkgname = tklabel(dlg,text=tclvalue(pkgtext),font=small)
     tkconfigure(pkgname,textvariable=pkgtext)
-    tkgrid(pkgname,column=0,row=2,sticky="w",padx="20")
+    tkgrid(pkgname,columnspan=4)  #row=2,sticky="w",padx="20")
     qtext = tclVar("Press SPACE to start")
     qlabel = tklabel(dlg,text=tclvalue(qtext),width=max(30,max(nchar(funlist))),font=large,relief="ridge",bd=10,bg="light yellow")
     tkconfigure(qlabel,textvariable=qtext)
@@ -265,7 +278,7 @@ Skip = function() {
     num3 = tklabel(dlg,textvariable=numunk,width=10,anchor="e",fg="red",font=other)
     num4 = tklabel(dlg,textvariable=numleft,width=10,anchor="e",font=other)
     num5 = tklabel(dlg,textvariable=timeleft,width=10,anchor="e",font=other)
-    numlabel1 = tklabel(dlg,text="All functions:",font=other)
+    numlabel1 = tklabel(dlg,text="All:",font=other)
     numlabel2 = tklabel(dlg,text="Known:",fg="blue",font=other)
     numlabel3 = tklabel(dlg,text="Unknown:",fg="red",font=other)
     numlabel4 = tklabel(dlg,text="Remaining:",font=other)

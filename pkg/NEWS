@@ -25,7 +25,7 @@ NEW FEATURES
         
     o   The .Rd manual page is retrieved and functions from
         internal pages (such as ns-internal and base-internal)
-        are filtered, reducing 878 to 809 (using R 2.12.1).
+        are filtered, reducing 878 to 809 (as of R 2.12.1).
         
     o   learn() now saves a learn()-ed status to .knowns.Rdata
         so you can come back to learn() later and continue
@@ -36,8 +36,9 @@ NEW FEATURES
         from .knowns.Rdata directly. Thanks to Sean O'Riordain
         for the suggestion.
         
-    o   The top 30 packages from Crantastic are included in the
-        list (FR#1042), as are all base and recommended packages.
+    o   The top 30 (by default) packages from Crantastic are
+        included in the list (FR#1042), as are all base and
+        recommended packages.
 
 
 

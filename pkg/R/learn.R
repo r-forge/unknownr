@@ -7,6 +7,7 @@ learn=function(pkgs=NULL,relearn=FALSE,fnam = path.expand("~/.knowns.Rdata"))
     if (is.null(names(knowns)) || any(duplicated(names(knowns)))) stop("Either knowns in ",fnam," has no names, or there is a duplicate in the names")
 	if (!identical(grep(":",names(knowns)),seq(1,length(knowns)))) stop("':' does not exist in all names(knowns)")
 	tolearn = knowns
+	basepackages = rownames(installed.packages(priority="base"))
 	
 	if (!is.null(pkgs)) {
 	    if (!is.character(pkgs)) stop("pkgs argument needs to be a character vector of package names")
@@ -29,7 +30,16 @@ learn=function(pkgs=NULL,relearn=FALSE,fnam = path.expand("~/.knowns.Rdata"))
     for (i in names(tolearn)) {   # i.e. known unknowns
         cat(i,"  ")
         tt = strsplit(i,split=":")[[1]]
-        print(help(topic=tt[2],package=tt[1]))
+        if (tt[1]=="PACKAGE") {
+            pkg = tt[2]
+            if (pkg %in% basepackages) {
+                if (tools:::httpdPort == 0L) tools::startDynamicHelp()
+                browseURL(paste("http://127.0.0.1:",tools:::httpdPort,"/library/",pkg,"/html/00Index.html",sep=""))
+            }
+            else browseURL(paste("http://crantastic.org/packages/",gsub("[.]","-",pkg),sep=""))
+        } else {
+            print(help(topic=tt[2],package=tt[1]))
+        }
         scan(quiet=TRUE)
         knowns[i] = 0.5
         save(list="knowns",file=fnam)
