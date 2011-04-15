@@ -1,4 +1,4 @@
-funlist = function(pkgs) {
+funlist = function(pkgs,top) {
     # list all functions in base and utils which we would
     # like to 'know'. Exclude the many as.* methods, just
     # including "as" once for example. Include non-methods
@@ -73,7 +73,22 @@ funlist = function(pkgs) {
     xx=xx[!names(xx) %in% remove]
     xx = xx[grep("-deprecated",names(xx),invert=TRUE)]
     # cat("Reduced",before,"to",length(xx),"using manual filter on .Rd names\n")
-    xx
+    
+    pkgs = rownames(installed.packages(priority="high"))  # base and recommended
+    if (top>0) {
+        setTimeLimit(elapsed=10)
+        cat("Reading toppkgs ...");flush.console()
+        toppkgs = try(read.table("http://unknownr.r-forge.r-project.org/toppkgs.csv",skip=1,sep=",",header=TRUE,stringsAsFactors=FALSE))
+        setTimeLimit(elapsed=Inf)
+        if (inherits(toppkgs,"try-error")) { 
+            cat("failed. Continuing without.\n")
+        } else {
+            cat("done.\n")
+            assign(".unk.toppkgs",toppkgs,.GlobalEnv)  # unk will present votes and users to user
+            pkgs = sort(unique(c(head(toppkgs$pkgs,top),pkgs)))
+        }
+    }
+    pkgs = paste("PACKAGE",pkgs,sep=":")
+    c(xx,pkgs)
 }
-
 

@@ -56,8 +56,8 @@ popcon = function(scrape=TRUE) {
         rownames(ans) = NULL
         ans = ans[,c("pkgs","avgvote","numvotes","users","score","rank","crantasticrank","insidervotes")]
         colnames(ans)[7:8] = c("Crantastic.rank","Inside-R.votes")
-        ans <<- ans
-    }
+        save(list="ans",file="ans.Rdata")
+    } else load("ans.Rdata")
     
     fnam = path.expand("~/R/unknownr/www/toppkgs.csv")
     write(format(Sys.time(),"%d %b %Y"),fnam)
@@ -69,7 +69,7 @@ popcon = function(scrape=TRUE) {
     require(hwriter)  # yes, I have voted for hwriter
     p = openPage(fnam, link.css="hwriter.css")
     hwrite('<br>This package list is compiled and used by <a href="http://unknownr.r-forge.r-project.org/">unknownR</a> to help users<br>easily and quickly discover useful packages rated by other users. By<br>',p)
-    hwrite('default the top 30 are included in unknownR\'s list.<br><br>',p)    
+    hwrite('default the top 30 are included in unknownR\'s list (plus R-core<br>recommended packages included in R).<br><br>',p)    
     hwrite(c('Data is scraped from Crantastic and Inside-R. See',hwrite('footnote', link='#footnote'),'.<br>'),p,table=FALSE)
     hwrite('Note that Inside-R appears to multiply the number of votes by a scaling factor.<br><br>',p)
     colnames(ans)[1]="CRAN package"
@@ -80,7 +80,7 @@ popcon = function(scrape=TRUE) {
                    col.style=list(avgvote='text-align:right',users='text-align:right',numvotes='text-align:right',score='text-align:right',rank='text-align:right',Crantastic.rank='text-align:right',"Inside-R.votes"='text-align:right'),
                    col.links=list("CRAN package"=paste("http://www.inside-r.org/packages/cran/",ans[,1],sep="")))
     
-    hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> (top 5 of which are on it\'s <a href="http://crantastic.org">homepage</a>) seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
+    hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
     hwrite('<ul><li>Packages with just one single vote (5*) are ranked highly because they have the maximum vote of 5.000.',p)
     hwrite('<li>ggplot2 is ranked 41st (when writing this), which doesn\'t seem correct given it has the most votes and the most users, by far.',p)
     hwrite('<li>Some packages on page <a href="http://crantastic.org/popcon?page=2">2</a> and <a href="http://crantastic.org/popcon?page=3">3</a> have many votes and users, but are harder to find.</ul>',p)

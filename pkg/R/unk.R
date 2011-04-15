@@ -1,4 +1,4 @@
-unk = function(pkgs=c("base","utils"),fnam = path.expand("~/.knowns.Rdata"),size=20,delay=3,redDelay=2) {
+unk = function(pkgs=c("base","utils"),fnam = path.expand("~/.knowns.Rdata"),top=30,size=20,delay=3,redDelay=2) {
     i=lock=esc=dlg=bool=starting=qlabel=qtext=pkgtext=unknowns=NULL
     knowns=numall=numkno=numunk=numleft=timeleft=num1=num2=num3=num4=num5=NULL
     numlabel1=numlabel2=numlabel3=numlabel4=numlabel5=NULL
@@ -7,6 +7,13 @@ unk = function(pkgs=c("base","utils"),fnam = path.expand("~/.knowns.Rdata"),size
     if (delay<1) stop("delay must be at least 1 second")
     if (redDelay<1) stop("redDelay must be at least 1 second")
     if (is.name(substitute(pkgs))) pkgs = as.character(substitute(pkgs))
+    if (top<0 || top>150) stop("top must be between 0 (i.e. crantastic feature off) and 150")
+    recommendedpackages = rownames(installed.packages(priority="recommended"))
+    basepackages = rownames(installed.packages(priority="base"))
+    if (top>0 && exists(".unk.toppkgs")) {
+        toppkgs = get(".unk.toppkgs")
+        rownames(toppkgs) = toppkgs$pkgs
+    } else toppkgs = data.frame(NULL)
     
 saveanswers=function() {
     knowns = savedknowns
@@ -115,8 +122,22 @@ Next = function() {
     } else {
         i <<- i+1
         thisunk = strsplit(unknowns[i],split=":")
-        tclvalue(pkgtext) = paste(thisunk[[1]][1],":",sep="")
-        tclvalue(qtext) = thisunk[[1]][2]
+        prefix = thisunk[[1]][1]
+        if (prefix=="PACKAGE") {
+            tclvalue(pkgtext) = "Package:"
+            pkg = thisunk[[1]][2]
+            if (pkg %in% basepackages)
+                suffix = "base package"
+            if (pkg %in% recommendedpackages)
+                suffix = "recommended"
+            if (pkg %in% toppkgs$pkgs)
+                suffix = paste(toppkgs[pkg,"users"],"users")
+                # A recommended package may also be in the top 30
+            tclvalue(qtext) = paste(pkg," (",suffix,")",sep="")
+        } else {
+            tclvalue(pkgtext) = paste(prefix,":",sep="")
+            tclvalue(qtext) = thisunk[[1]][2]
+        }
         xx = parse(text=paste(".Red(",i,")"))
         tcl("after",delay*1000,xx)
         starting <<- FALSE
@@ -184,7 +205,7 @@ Skip = function() {
 	    savedknowns=knowns=numeric(0)
     }
     if (!exists(".unk.funlist",.GlobalEnv) || !all(pkgs %in% attr(get(".unk.funlist"),"pkgs"))) {
-        funlist = funlist(pkgs)
+        funlist = funlist(pkgs,top)
         attr(funlist,"pkgs") = pkgs
         assign(".unk.funlist",funlist,.GlobalEnv)
     } else {
