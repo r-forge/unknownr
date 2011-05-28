@@ -70,7 +70,7 @@ popcon = function(scrape=TRUE) {
     p = openPage(fnam, link.css="hwriter.css")
     hwrite('<br>This package list is compiled and used by <a href="http://unknownr.r-forge.r-project.org/">unknownR</a> to help users<br>easily and quickly discover useful packages rated by other users. By<br>',p)
     hwrite('default the top 30 are included in unknownR\'s list (plus R-core<br>recommended packages included in R).<br><br>',p)    
-    hwrite(c('Data is scraped from Crantastic and Inside-R. See',hwrite('footnote', link='#footnote'),'.<br>'),p,table=FALSE)
+    hwrite(paste('Data is scraped from Crantastic and Inside-R; see ',hwrite('footnote', link='#footnote'),'.<br>',sep=""),p)
     hwrite('Note that Inside-R appears to multiply the number of votes by a scaling factor.<br><br>',p)
     colnames(ans)[1]="CRAN package"
     hwrite(ans, p, row.names=FALSE,
