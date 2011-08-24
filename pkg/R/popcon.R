@@ -61,7 +61,7 @@ popcon = function(scrape=TRUE) {
         ans$rank = 1:nrow(ans)
         rownames(ans) = NULL
         ans = ans[,c("pkgs","avgvote","numvotes","users","score","rank","crantasticrank","insidervotes")]
-        colnames(ans)[7:8] = c("Crantastic.rank","Inside-R.votes")
+        colnames(ans)[7:8] = c("Crantastic Rank","Inside-R Votes")
         save(list="ans",file="ans.Rdata")
     } else load("ans.Rdata")
     
@@ -84,7 +84,9 @@ popcon = function(scrape=TRUE) {
                    row.bgcolor=list('#aaffaa'),
                    row.style=list('font-weight:bold'),
                    col.style=list(avgvote='text-align:right',users='text-align:right',numvotes='text-align:right',score='text-align:right',rank='text-align:right',Crantastic.rank='text-align:right',"Inside-R.votes"='text-align:right'),
-                   col.links=list("CRAN package"=paste("http://www.inside-r.org/packages/cran/",ans[,1],sep="")))
+                   col.links=list("CRAN package"=paste(crantasticpath,ans[,1],sep=""),
+                                  "Crantastic Rank"=paste(crantasticpath,ans[,1],sep=""),
+                                  "Inside-R Votes"=paste(insiderpath,ans[,1],sep="")))
     
     hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
     hwrite('<ul><li>Packages with just one 5* vote (and no other votes) are ranked first because they have the maximum vote of 5.000.',p)
