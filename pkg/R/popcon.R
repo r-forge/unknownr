@@ -26,16 +26,22 @@ popcon = function(scrape=TRUE) {
         # now fetch the number of votes (which is only on the detail page for each package)
         numvotes = sapply(popcon$pkgs, function(i){
             cat("Fetching",i,"from Crantastic ... ")
-            html = scan(paste(crantasticpath,gsub("[.]","-",i),sep=""),character(),quiet=TRUE)
-            ans = as.integer(gsub("[(]","",html[grep("vote.*)",html)-1])[1])
-            if (is.na(ans) || ans<0) stop("likely format error (Crantastic)")
+            tt = try(html <- scan(paste(crantasticpath,gsub("[.]","-",i),sep=""),character(),quiet=TRUE))
+            if (inherits(tt,"try-error")) {
+                cat("Crantastic link error, using 0 for this package\n")
+                ans = 0
+            } else {
+                ans = as.integer(gsub("[(]","",html[grep("vote.*)",html)-1])[1])
+                if (is.na(ans) || ans<0) stop("likely format error (Crantastic)")
+            }
             cat(ans,"\n")
             ans
         })
         # fetch the votes from Inside-R 
         insidervotes = sapply(popcon$pkgs, function(i) {
             cat("Fetching",i,"from Inside-R ... ")
-            html = scan(paste(insiderpath,i,sep=""),character(),quiet=TRUE)
+            html = try(scan(paste(insiderpath,i,sep=""),character(),quiet=TRUE))
+            if (inherits(html,"try-error")) return(0)  # e.g. maxent had no page yet on Inside-R on 24 Aug
             ans = html[grep("vote.*>[0-9]+<",html)]
             if (!length(ans)) return(0)  # some pkgs had no votes showing on Inside-R
             ans = as.integer(sapply(strsplit(ans,split="[<>]"),"[",4))[1]
