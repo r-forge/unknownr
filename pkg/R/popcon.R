@@ -32,7 +32,11 @@ popcon = function(scrape=TRUE) {
                 ans = 0
             } else {
                 ans = as.integer(gsub("[(]","",html[grep("vote.*)",html)-1])[1])
-                if (is.na(ans) || ans<0) stop("likely format error (Crantastic)")
+                if (is.na(ans) || ans<0) {
+                    cat("Try rerunning, otherwise possible format error (Crantastic).\n")
+                    browser()
+                    ans = 0
+                }
             }
             cat(ans,"\n")
             ans
