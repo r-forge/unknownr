@@ -31,7 +31,8 @@ popcon = function(scrape=TRUE) {
                 cat("Crantastic link error, using 0 for this package\n")
                 ans = 0
             } else {
-                ans = as.integer(gsub("[(]","",html[grep("vote.*)",html)-1])[1])
+                ans = gsub("[(]","",html[grep("vote.*)",html)-1])[1]
+                ans = suppressWarnings(as.integer(ans))
                 if (is.na(ans) || ans<0) {
                     cat("Try rerunning, otherwise possible format error (Crantastic).\n")
                     browser()
@@ -55,17 +56,18 @@ popcon = function(scrape=TRUE) {
         })
         ans = cbind(popcon,numvotes,insidervotes)
         
-        ans$score = round(with(ans, ((avgvote*numvotes+3)/(numvotes+1) + (users*5+3)/(users+1))/2),3)
+        # Old modified score (too complicated and too sensitive to outlier votes) :
+        # ans$score = round(with(ans, ((avgvote*numvotes+3)/(numvotes+1) + (users*5+3)/(users+1))/2),3)
         # all packages start with one 3* vote
         # an "i use this!" counts as a 5*, again starting with one default 3*
         # then equally weight vote and users
         
         ans$crantasticrank = 1:nrow(ans)
-        ans = ans[order(-ans$score),]
+        ans = ans[order(-ans$users),]   # now rank by #users only, simple
         ans$rank = 1:nrow(ans)
         rownames(ans) = NULL
-        ans = ans[,c("pkgs","avgvote","numvotes","users","score","rank","crantasticrank","insidervotes")]
-        colnames(ans)[7:8] = c("Crantastic Rank","Inside-R Votes")
+        ans = ans[,c("pkgs","avgvote","numvotes","users","rank","crantasticrank","insidervotes")]
+        colnames(ans)[6:7] = c("Crantastic Rank","Inside-R Votes")
         save(list="ans",file="ans.Rdata")
     } else load("ans.Rdata")
     
@@ -87,7 +89,7 @@ popcon = function(scrape=TRUE) {
                    table.style="margin-left:0px",
                    row.bgcolor=list('#aaffaa'),
                    row.style=list('font-weight:bold'),
-                   col.style=list(avgvote='text-align:right',users='text-align:right',numvotes='text-align:right',score='text-align:right',rank='text-align:right',Crantastic.rank='text-align:right',"Inside-R.votes"='text-align:right'),
+                   col.style=list(avgvote='text-align:right',users='text-align:right',numvotes='text-align:right',rank='text-align:right',Crantastic.rank='text-align:right',"Inside-R.votes"='text-align:right'),
                    col.links=list("CRAN package"=paste(crantasticpath,ans[,1],sep=""),
                                   "Crantastic Rank"=paste(crantasticpath,ans[,1],sep=""),
                                   "Inside-R Votes"=paste(insiderpath,ans[,1],sep="")))
@@ -96,10 +98,10 @@ popcon = function(scrape=TRUE) {
     hwrite('<ul><li>Packages with just one 5* vote (and no other votes) are ranked first because they have the maximum vote of 5.000.',p)
     hwrite('<li>ggplot2 is ranked 41st (when writing this), which doesn\'t seem correct given it has the most votes and the most users, by far.',p)
     hwrite('<li>Some packages on page <a href="http://crantastic.org/popcon?page=2">2</a> and <a href="http://crantastic.org/popcon?page=3">3</a> have many votes and users, but are harder to find.</ul>',p)
-    hwrite('The data is scraped and a default 3* vote is added to each package to address these issues.<br>',p)
+    hwrite('So, the data is scraped and we rank by the number of users, to address these issues.<br>',p)
     hwrite('No claim is made that this is the <em>best</em> method, just that it is better than Crantastic\'s rank.<br>',p)
     hwrite('This adjustment has been suggested to Hadley. If popcon is changed, this page can be removed.<br>',p)
-    hwrite('The R function that generates this page, including the adjustment formula, is <a href="https://r-forge.r-project.org/scm/viewvc.php/pkg/R/popcon.R?view=markup&root=unknownr">here</a>.<br><br>',p)
+    hwrite('The R function that generates this page, is <a href="https://r-forge.r-project.org/scm/viewvc.php/pkg/R/popcon.R?view=markup&root=unknownr">here</a>.<br><br>',p)
     hwrite('The content and data from <a href="http://crantastic.org/">Crantastic</a> and <a href="http://www.inside-r.org/">Inside-R</a> is available under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC Attribution-Share Alike 3.0 Unported</a> license.<br>',p)
     hwrite('The derived data on this page is also available under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC Attribution-Share Alike 3.0 Unported</a> license.',p)
     hwrite('<script type="text/javascript">var sc_project=6700858;var sc_invisible=1; var sc_security="3e5c47ee";</script><script type="text/javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><div class="statcounter"><a title="website statistics" href="http://statcounter.com/free-web-stats/" target="_blank"><img class="statcounter" src="http://c.statcounter.com/6700858/0/3e5c47ee/1/" alt="website statistics"></a></div></noscript>',p)
