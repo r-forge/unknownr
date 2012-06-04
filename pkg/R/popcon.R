@@ -83,13 +83,18 @@ popcon = function(scrape=TRUE) {
     hwrite('<br>This package list is compiled and used by <a href="http://unknownr.r-forge.r-project.org/">unknownR</a> to help users<br>easily and quickly discover useful packages rated by other users. By<br>',p)
     hwrite('default the top 30 are included in unknownR\'s list (plus R-core<br>recommended packages included in R).<br><br>',p)    
     hwrite(paste('Data is scraped from Crantastic and Inside-R; see ',hwrite('footnote', link='#footnote'),'.<br>',sep=""),p)
-    hwrite('Note that Inside-R appears to multiply the number of votes by a scaling factor.<br><br>',p)
+    hwrite("Note that Inside-R appears to multiply Crantastic's votes by a scaling factor.<br><br>",p)
     colnames(ans)[1]="CRAN package"
+    ans = ans[,c("rank","CRAN package","users","avgvote","numvotes","Crantastic Rank","Inside-R Votes")]
+    colnames(ans)[1] ="Rank"
+    colnames(ans)[3] ="Users"
+    colnames(ans)[4] ="AvgVote"
+    colnames(ans)[5] ="NumVotes"
     hwrite(ans, p, row.names=FALSE,
                    table.style="margin-left:0px",
                    row.bgcolor=list('#aaffaa'),
                    row.style=list('font-weight:bold'),
-                   col.style=list(avgvote='text-align:right',users='text-align:right',numvotes='text-align:right',rank='text-align:right',Crantastic.rank='text-align:right',"Inside-R.votes"='text-align:right'),
+                   col.style=list(AvgVote='text-align:right',Users='text-align:right',NumVotes='text-align:right',Rank='text-align:right',"Crantastic Rank"='text-align:right',"Inside-R Votes"='text-align:right'),
                    col.links=list("CRAN package"=paste(crantasticpath,ans[,1],sep=""),
                                   "Crantastic Rank"=paste(crantasticpath,ans[,1],sep=""),
                                   "Inside-R Votes"=paste(insiderpath,ans[,1],sep="")))
