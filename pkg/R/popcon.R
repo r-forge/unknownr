@@ -95,9 +95,9 @@ popcon = function(scrape=TRUE) {
                    row.bgcolor=list('#aaffaa'),
                    row.style=list('font-weight:bold'),
                    col.style=list(AvgVote='text-align:right',Users='text-align:right',NumVotes='text-align:right',Rank='text-align:right',"Crantastic Rank"='text-align:right',"Inside-R Votes"='text-align:right'),
-                   col.links=list("CRAN package"=paste(crantasticpath,ans[,1],sep=""),
-                                  "Crantastic Rank"=paste(crantasticpath,ans[,1],sep=""),
-                                  "Inside-R Votes"=paste(insiderpath,ans[,1],sep="")))
+                   col.links=list("CRAN package"=paste(crantasticpath,ans$"CRAN package",sep=""),
+                                  "Crantastic Rank"=paste(crantasticpath,ans$"CRAN package",sep=""),
+                                  "Inside-R Votes"=paste(insiderpath,ans$"CRAN package",sep="")))
     
     hwrite('<br><a href="http://crantastic.org/popcon">Crantastic\'s ranking</a> seems inappropriate for unknownR\'s needs:<br>',p,name="footnote")
     hwrite('<ul><li>Packages with just one 5* vote (and no other votes) are ranked first because they have the maximum vote of 5.000.',p)
